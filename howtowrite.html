@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<!-- OGPタグの設定
+  		<meta property="og:url" content="http://niltheria.daynight.jp/bbt/tools/index.html" />
+		<meta property="og:title" content="BBT セッション準備支援ツール" />
+		<meta property="og:description" content="「ビーストバインドトリニティ」用の、主にオンラインセッションの準備を簡略化するためのwebツール集。" />
+		<meta property="og:image" content="http://niltheria.daynight.jp/sitelogo_summary.png" />
+		<meta property="og:type" content="article" />
+		<meta property="og:site_name" content="NiLtheria" />
+		<meta property="og:locale" content="ja_JP" />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:site" content="@u_krasaka" />
+    ここまで -->
+
+    <!-- HTML タイトル -->
+    <title>BBT チャットパレットコンバーター V3体験版</title>
+
+    <!-- CSSの設定 -->
+    <link href="css/w3.css" rel="stylesheet" type="text/css">
+    <link href="css/palette_converter3.css" rel="stylesheet" type="text/css">
+    <link href="css/css_tooltip.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <header class="w3-container w3-indigo">
+        <h2 class="w3-text-white">《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》V3</h2>
+        <p class="w3-small w3-text-white">
+            《変換 -Palette Converter-》は、<a href="https://character-sheets.appspot.com/" target="_blank" class="w3-hover-blue">キャラクターシート倉庫</a>に保存されたBBTのキャラクターシートから、各種オンラインセッションツールで使用するチャットパレットを生成する準備支援ツールです。
+        </p>
+    </header>
+
+    <div class="w3-panel">
+        本ページは、《変換 -Palette Converter-》Ver 3.xにおける、「判定値」欄／「命中」欄やダメージロール式の書き方について、詳細情報を記載しています。
+    </div>
+
+    <div class="w3-panel" id="howToWriteJudge">
+        <h5 class="w3-leftbar w3-border-bottom w3-border-indigo" style="padding-left: 0.5em; margin-bottom: 1em; font-weight: bold;">
+            アーツの「判定値」欄、「効果」欄の書き方の事例
+        </h5>
+        <div style="margin: 0em 2em;" v-cloak>
+            <table class="w3-border-black w3-small" border="1" style="padding:0; border-collapse: collapse;">
+                <caption class="w3-black w3-border w3-round-large w3-medium" style="padding: 0.5em 1em; vertical-align: middle; font-weight: bold; text-align: left; margin-bottom: 0.25em;">
+                    <i class="fas fa-feather-alt" style="margin-right:0.5em;"></i>
+                    アーツ記載例<br>
+                    <span style="font-weight:normal;" class="w3-small">※今回の記載事例に関係のない、「種別」「タイミング」「対象」「射程」欄は記入を省略しています。</span>
+                </caption>
+                <tr class="w3-black" style="font-weight: bold;">
+                    <td v-for="t in arts.dataheader" style="padding: 0 0.5em;">{{ t }}</td>
+                </tr>
+                <tr v-for="(i, index) in arts.items" style="vertical-align: middle;">
+                    <td><textarea class="row3" cols="14" rows="2" v-model="i.name" readonly></textarea></td>
+                    <td><textarea class="row3" cols="7" rows="2" v-model="i.type" readonly></textarea></td>
+                    <td><textarea class="row3" cols="2" rows="2" v-model="i.level" readonly></textarea></td>
+                    <td><textarea class="row3" cols="8" rows="2" v-model="i.timing" readonly></textarea></td>
+                    <td><textarea class="row3" cols="8" rows="2" v-model="i.judge" readonly></textarea></td>
+                    <td><textarea class="row3" cols="4" rows="2" v-model="i.tgt" readonly></textarea></td>
+                    <td><textarea class="row3" cols="4" rows="2" v-model="i.range" readonly></textarea></td>
+                    <td><textarea class="row3" cols="4" rows="2" v-model="i.cost" readonly></textarea></td>
+                    <td><textarea class="row3" cols="40" rows="2" v-model="i.notes" readonly></textarea></td>
+                </tr>
+            </table>
+            <div>
+                <ul class="w3-small">
+                    <li class="htw_head">
+                        Palette Converter使用における「判定値」欄の書き方とその影響
+                        <ul class="subcontent">
+                            <li>そのアーツの効果で判定を行う場合、「判定値」欄に記入した内容をもとに、チャットパレットの式を自動作成します。</li>
+                            <li>特定の能力値で判定を行う場合、その能力値名を記入してください。（例：上表《災厄者》）
+                                <ul>
+                                    <li>能力値名は、【感情】や {感情} のような隅付き括弧・波括弧でくくっても認識します。</li>
+                                    <li>アーツの判定値を固定値で記入したい場合は、そのままその固定値を数字で記入してください。（判定値欄「10」など）</li>
+                                    <li>能力値はひとつのみ有効です。二つ目の能力値は、無視されます。必要な能力値のみを記入してください。</li>
+                                </ul>
+                            </li>
+                            <li>そのアーツで発生する判定に修正がかかる場合、その修正値を記入することもできます。（例：上表《加速装置》）
+                                <ul>
+                                    <li>ただし、アーツによる判定では、修正値「+2」のみを記入するような記法は対応していません。</li>
+                                </ul>
+                            </li>
+                            <li>判定値欄に<span class="w3-text-indigo w3-pale-blue pl-padh">@-1</span>と入力した場合、そのアーツの判定でのみクリティカル値が-1されます。</li>
+                            <li>判定値欄に<span class="w3-text-indigo w3-pale-blue pl-padh">#+1</span>と入力した場合、そのアーツの判定でのみファンブル値が+1されます。</li>
+                            <li>判定値欄に<span class="w3-text-indigo w3-pale-blue pl-padh">&3</span>と入力した場合、そのアーツの判定でのみ「3未満の出目を、すべて3として扱う」効果が適用されます。</li>
+                        </ul>
+                    </li>
+                    <li class="htw_head">
+                        Palette Converter使用における、「効果」欄からのダメージロール式引用
+                        <ul class="subcontent">
+                            <li>そのアーツの効果欄に大括弧<strong class="pl-padh w3-pale-blue w3-indigo" style="font-weight:bold;">[　]</strong>で括られた数式がある場合、それはダメージロール式として転記されます。（例：上表《災厄者》《アタックアシスト》）
+                                <ul>
+                                    <li>これは、その効果欄にある一番最初の大括弧のみ有効です。</li>
+                                    <li>特殊攻撃などでダメージ属性を指定したい場合は、山括弧<strong class="pl-padh w3-pale-blue w3-indigo">〈　〉</strong>で属性名を囲んでください。これも、最初のひとつのみ有効です。</li>
+                                    <li>ダメージロール式の書き方についての詳細は、「ダメージロール式の展開」をお読みください。</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="htw_head">
+                        その他、判定値・ダメージロール式に共通する事項
+                        <ul class="subcontent">
+                            <li>判定値欄、ダメージロール式中の<span class="w3-text-indigo w3-pale-blue pl-padh">(　　)</span>で囲んだ部分は、《魔獣化》中にのみ適用されます。詳細は「ダメージロール式の展開」をお読みください。
+                                <ul>
+                                    <li>判定値欄の「@-1」「#+1」も、囲むことで《魔獣化》中のみ適用できます。</li>
+                                    <li>ただし、(　)内の先頭に<strong class="pl-padh w3-pale-blue w3-text-indigo">:</strong>（半角コロン）を入れた場合は例外になります。（例：上表《シャープストライク》判定値）</li>
+                                </ul>
+                            </li>
+                            <li>判定値欄の<span class="w3-text-indigo w3-pale-blue pl-padh">LV</span>の文字は、そのアーツのLVに置換されます。
+                                <ul>
+                                    <li>正確には「LV欄を数値として解釈したもの」が代入されます。「1●」などの表記は、レベル1のアーツとして扱われます。</li>
+                                    <li><span class="w3-pale-red pl-padh">(LV×2)D6</span>という記入は、「(　)で囲んだ部分が《魔獣化》中にのみ適用される」というルールによって、人間状態で正常に適用されないおそれがあります。その場合は、<span class="w3-text-indigo w3-pale-blue pl-padh">(:LV×2)D6</span>というように、半角コロンの書式を併用してください。</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="htw_head">
+                        その他、コスト欄の記入
+                        <ul class="subcontent">
+                            <li>GF24-5の追加ルーツ「モータル」の、コストを【FP】消費で代替する場合の表記に対応しています。計算可能なデータは【FP】消費量に変換した上でコスト表示を出力します。</li>
+                            <li>使用ツールが「ユドナリウムリリィ」の場合、アーツ使用宣言文を出力する際に、コスト欄を「リソース操作コマンド」の形に変換して書き下します。
+                                <ul>
+                                    <li>これにより、アーツの使用宣言と同時にコストの支払いが実行できるようになります。</li>
+                                    <li>対応するリソースは「FP」「人間性」「愛」「罪」「大罪」「反動」の6種類です。（「反動」はGF誌に先行収録された「呪われし者」の専用リソース「反動ポイント」を指します）</li>
+                                    <li>解釈できなかったものはそのままコスト文を書き下すような使用にしています。</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <h5 class="w3-leftbar w3-border-bottom w3-border-indigo" style="padding-left: 0.5em; margin-top: 2em; margin-bottom: 1em; font-weight: bold;">
+            武器の「命中」欄、「攻撃力」欄の書き方の事例
+        </h5>
+        <div style="margin: 0em 2em;" v-cloak>
+            <table class="w3-border-black w3-small" border="1" style="padding:0; border-collapse: collapse;">
+                <caption class="w3-black w3-border w3-round-large w3-medium" style="padding: 0.5em 1em; vertical-align: middle; font-weight: bold; text-align: left; margin-bottom: 0.25em;">
+                    <i class="fas fa-feather-alt" style="margin-right:0.5em;"></i>
+                    武器データ記載例<br>
+                    <span style="font-weight:normal;" class="w3-small">※今回の記載事例に関係のない欄は記入を省略しています。</span>
+                </caption>
+                <tr class="w3-black" style="font-weight: bold;">
+                    <td v-for="t in weapons.dataheader" style="padding: 0 0.5em;">{{ t }}</td>
+                </tr>
+                <tr v-for="(i, index) in weapons.items" style="vertical-align: middle;">
+                    <td><textarea class="row3" cols="14" rows="2" v-model="i.name" readonly></textarea></td>
+                    <td><textarea class="row3" cols="7" rows="2" v-model="i.type" readonly></textarea></td>
+                    <td><textarea class="row3" cols="8" rows="2" v-model="i.judge" readonly></textarea></td>
+                    <td>
+                        <select v-model="i.attribute" class="row3" disabled>
+                            <option value="肉体">肉体</option>
+                            <option value="技術">技術</option>
+                            <option value="感情">感情</option>
+                            <option value="加護">加護</option>
+                            <option value="社会">社会</option>
+                        </select>
+                    </td>
+                    <td><textarea class="row3" cols="10" rows="2" v-model="i.attack" readonly></textarea></td>
+                    <td><textarea class="row3" cols="4" rows="2" v-model="i.guard" readonly></textarea></td>
+                    <td><textarea class="row3" cols="3" rows="2" v-model="i.action" readonly></textarea></td>
+                    <td><textarea class="row3" cols="3" rows="2" v-model="i.range" readonly></textarea></td>
+                    <td><textarea class="row3" cols="20" rows="2" v-model="i.notes" readonly></textarea></td>
+                </tr>
+            </table>
+            <div>
+                <ul class="w3-small">
+                    <li class="htw_head">
+                        Palette Converter使用における「命中」欄の書き方とその影響
+                        <ul class="subcontent">
+                            <li>基本的な書式は、アーツの「判定値欄」と同様です。クリティカル値、ファンブル値の個別修正も使用できます。</li>
+                            <li>武器の命中欄では、追加で以下の機能を利用できます。
+                                <ul>
+                                    <li>命中欄が<span class="w3-text-indigo w3-pale-blue pl-padh">+1</span>または<span class="w3-text-indigo w3-pale-blue pl-padh">-1</span>など、「正負の符号」から始まる命中欄は、以下の判定式を作成します。
+                                        <ul class="w3-border w3-round w3-border-amber">
+                                            <li>種別欄に<span class="w3-text-indigo w3-pale-blue pl-padh">白</span>を含む：白兵武器を表す。命中欄の内容を修正として扱い、【白兵】判定の式を作成する。</li>
+                                            <li>種別欄に<span class="w3-text-indigo w3-pale-blue pl-padh">射</span>を含む：射撃武器を表す。命中欄の内容を修正として扱い、【射撃】判定の式を作成する。</li>
+                                            <li>種別欄に<span class="w3-text-indigo w3-pale-blue pl-padh">乗</span>を含む：乗り物を表す。命中欄の内容を修正として扱い、原則として【白兵】判定の式を作成する。
+                                                <ul>
+                                                    <li>種別欄にさらに「魔艦」の記載があるもの、または特定の名称を武器の「名称」「備考」欄いずれかに含む場合は、代わりに【射撃】判定の式を作成する。</li>
+                                                    <li>対象となる「特定の名称」は、R3/8/9時点では「コスモマシン」「アームドヴィークル」「要塞宝具」「戦闘飛装脚」の4種。</li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li>命中欄が<span class="w3-text-indigo w3-pale-blue pl-padh">1</span>など、「正の整数のみで構成される」場合、以下の処理が適用されます。
+                                        <ul class="w3-border w3-round w3-border-amber">
+                                            <li>「命中欄が符号のない整数の場合」のオプションが「基準値として扱う」の場合、その整数を固定値として判定式が作成されます。</li>
+                                            <li>「命中欄が符号のない整数の場合」のオプションが「プラスの修正として扱う」の場合、「+1」等と入力した場合と同じ処理が行われます。</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>武器にはLVのデータがないので、LVの値を置換する機能は使用できません。</li>
+                        </ul>
+                    </li>
+                    <li class="htw_head">
+                        Palette Converter使用における「攻撃力」欄の書き方とその影響
+                        <ul class="subcontent">
+                            <li>攻撃力欄が<span class="w3-text-indigo w3-pale-blue pl-padh">+1</span>など「正負の符号」で始まるものは、判定式の先頭にその武器の「属性」と同じ【能力値】を挿入します。</li>
+                            <li>攻撃力欄に含まれる【能力値】の記入は、キャラクターデータに紐付けられたその【能力値】が代入されます。</li>
+                        </ul>
+                    </li>
+                    <li class="htw_head">
+                        Palette Converter使用における「ガード値」欄の書き方とその影響
+                        <ul class="subcontent">
+                            <li>ガード値が存在する武器は、「基本的なリアクション」におけるガードに用いる武器の選択肢として挙がってきます。</li>
+                            <li><span class="pl-padh w3-pale-blue">(　　)</span>で囲まれた部分は、原則として《魔獣化》中のみ反映される値を表します。上表の「ガード用武器」の例では、人間状態の「ガード値7」と魔獣化中の「ガード値10」の両方が選択肢として挙げられます。</li>
+                        </ul>
+                    </li>
+                    <li class="htw_head">
+                        その他、命中欄・攻撃力欄に共通する事項
+                        <ul class="subcontent">
+                            <li><span class="pl-padh w3-pale-blue">(　　)</span>で囲まれた部分は、原則として《魔獣化》中のみ反映される値を表します。詳細は「ダメージロール式の展開」をお読みください。</li>
+                            <li>判定式・ダメージロール式に引用する際に「×」（かける）、「÷」の文字は乗算・除算記号に変換されます。</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <h5 class="w3-leftbar w3-border-bottom w3-border-indigo" style="padding-left: 0.5em; margin-top: 2em; margin-bottom: 1em; font-weight: bold;">
+            ダメージロール式の展開
+        </h5>
+        <div style="margin: 0em 2em;">
+            <div>
+                <ul class="w3-small">
+                    <li class="htw_head">
+                        ダメージロール式、および「判定値」「命中」欄の<span class="w3-text-indigo w3-pale-blue pl-padh">(　　)</span>で囲まれた部分は、以下の順番に沿って展開されます。
+                        <ul class="subcontent">
+                            <li><span class="w3-text-indigo w3-pale-blue pl-padh">(:LV+1)D6</span>など、<span class="w3-text-indigo w3-pale-blue pl-padh">(　　)の中身が : 半角コロンで始まる</span>場合、一旦別の文字列に置換して処理を行うため、以下の内容は適用されません。
+                                <ul>
+                                    <li>注意点として、この半角コロンを追加した式展開を行う場合、この中にさらに(　)を入れ子にしないでください。正常に変換されません。</li>
+                                </ul>
+                            </li>
+                            <li>人間状態の場合：<span class="w3-text-indigo w3-pale-blue pl-padh">(　　)</span>内の内容は、すべて削除された状態で出力されます。</li>
+                            <li>魔獣状態の場合：以下の順序に沿って展開されます。これを、<span class="w3-text-indigo w3-pale-blue pl-padh">(　　)</span>に囲まれた文字がなくなるまで繰り返します。
+                                <ol>
+                                    <li><span class="w3-text-indigo w3-pale-blue pl-padh">(+3)</span>など、<span class="w3-text-indigo w3-pale-blue pl-padh">(　　) 内が正負の符号から始まる</span>場合、その中身を単純な加減算式として繋げます。
+                                        <ul>
+                                            <li>例：10(+3)+1D6 → 人間状態では「10+1D6」、魔獣状態では「10+3+1D6」として出力されます。</li>
+                                        </ul>
+                                    </li>
+                                    <li><span class="w3-text-indigo w3-pale-blue pl-padh">10(15)</span>など、<span class="w3-text-indigo w3-pale-blue pl-padh">(　　) 内が数字または符号以外の文字から始まる</span>場合、直前の数字や文字列と入れ替わります。
+                                        <ul>
+                                            <li>例：10(15)+1D6 → 人間状態では「10+1D6」、魔獣状態では「15+1D6」として出力されます。</li>
+                                        </ul>
+                                    </li>
+                                    <li><span class="w3-text-indigo w3-pale-blue pl-padh">10+1D6(15+2D6)</span>など、<span class="w3-text-indigo w3-pale-blue pl-padh">(　　) の内容と、その直前の内容が両方とも正負の符号を含む</span>場合、直前の式がまるごと入れ替わります。
+                                        <ul>
+                                            <li>例：10+1D6(15+2D6) → 人間状態では「10+1D6」、魔獣状態では「15+2D6」として出力されます。</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="w3-container w3-dark-grey w3-small" style="padding-top: 1em; text-align: center;">
+        <p style="font-weight:bold; border-bottom: solid 1px #9e9e9e; margin:0 4em 1em 4em; padding-bottom: 0.5em;">
+            《変換 -Palette Converter-》
+        </p>
+        <p style="border-bottom: solid 1px #9e9e9e; margin:0 4em 1em 4em; padding-bottom: 1em;">
+            Copyright (c) 2021 Yu Krasaka <a href="https://twitter.com/u_krasaka" target="_blank">(Twitter: @u_krasaka)</a><br>
+            Released under the MIT license<br>
+            <a href="https://opensource.org/licenses/mit-license.php" target="_blank">https://opensource.org/licenses/mit-license.php</a>
+        </p>
+        <p>
+            「ビーストバインド トリニティ」は、有限会社ファーイースト・アミューズメント・リサーチの著作物です。
+        </p>
+    </footer>
+</body>
+
+<!-- Vue.js -->
+<script src="https://unpkg.com/vue@next" crossorigin="anonymous"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/vue@3.1.1/dist/vue.global.prod.js" crossorigin="anonymous"></script> -->
+<!-- Font Awesome -->
+<script src="https://kit.fontawesome.com/2a572495d4.js" crossorigin="anonymous"></script>
+<!-- javascriptファイルの読み込み -->
+<script type="text/javascript" src="script/howtowrite.js"></script> <!-- 書き方サンプル用 -->
+<script type="text/javascript" src="script/eval-calculation.js"></script> <!-- 計算 -->
+<script type="text/javascript" src="script/core.js"></script> <!-- 計算 -->
+
+</html>

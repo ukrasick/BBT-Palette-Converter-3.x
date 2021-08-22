@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<!-- OGPタグの設定
+  		<meta property="og:url" content="http://niltheria.daynight.jp/bbt/tools/index.html" />
+		<meta property="og:title" content="BBT セッション準備支援ツール" />
+		<meta property="og:description" content="「ビーストバインドトリニティ」用の、主にオンラインセッションの準備を簡略化するためのwebツール集。" />
+		<meta property="og:image" content="http://niltheria.daynight.jp/sitelogo_summary.png" />
+		<meta property="og:type" content="article" />
+		<meta property="og:site_name" content="NiLtheria" />
+		<meta property="og:locale" content="ja_JP" />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:site" content="@u_krasaka" />
+    ここまで -->
+
+    <!-- HTML タイトル -->
+    <title>BBT チャットパレットコンバーター V3体験版</title>
+
+    <!-- CSSの設定 -->
+    <link href="css/w3.css" rel="stylesheet" type="text/css">
+    <link href="css/palette_converter3.css" rel="stylesheet" type="text/css">
+    <link href="css/css_tooltip.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <!-- タイトルスライド -->
+    <div class="w3-container w3-indigo">
+        <h2 class="w3-text-white">《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 V3: Trial version</h2>
+        <p class="w3-small w3-text-white">
+            《変換 -Palette Converter-》は、<a href="https://character-sheets.appspot.com/" target="_blank" class="w3-hover-blue">キャラクターシート倉庫</a>に保存されたBBTのキャラクターシートから、各種オンラインセッションツールで使用するチャットパレットを生成する準備支援ツールです。
+        </p>
+    </div>
+    <div class="main-menu">
+        <!-- メインアプリ部分 -->
+        <div id="pl_main" v-cloak>
+            <!-- PC、ワイドタブレット用 -->
+            <div class="w3-container w3-hide-small w3-hide-medium w3-white w3-border">
+                <div class="w3-small" style="display: flex; flex-wrap: wrap; align-items: center;">
+                    <div style="margin: 1em;">
+                        <strong>キャラクターシート倉庫URL：</strong>
+                        <input type="text" v-model="sheet_url"  style="width: 20em; height: 2.5em;" @change="revoke_main_data()">
+                    </div>
+                    <div style="margin: 1em;">
+                        <strong>ツール指定：</strong>
+                        <select v-model="system_selected" style="height: 2.5em;" @change="copy_system_tool">
+                            <option v-for="k in systems" :value="k">{{k}}</option>
+                        </select>
+                    </div>
+                    <div style="margin: 1em;">
+                        <button class="w3-btn w3-indigo w3-hover-blue w3-round" @click="process_button()">
+                            <span v-show="!main_data_name">
+                                <i class="fas fa-dice-d6"></i>
+                                チャットパレットを出力
+                            </span>
+                            <span v-show="main_data_name">
+                                <i class="fas fa-redo" style="margin-right:0.5em;"></i>
+                                チャットパレット再出力
+                            </span>
+                        </button>
+                    </div>
+                    <div style="margin: 0.5em; margin-left: 2em; padding: 0.5em 1em;" class="w3-border w3-light-grey" v-show="main_data_name">
+                        読み込み中：{{main_data_name}}
+                    </div>
+                    <div style="margin: 1em;" v-show="main_data_name">
+                        <button class="w3-btn w3-black w3-hover-dark-grey w3-round" @click="revoke_data()">
+                            <i class="fas fa-power-off" style="margin-right:0.5em;"></i>
+                            読み込み中データの破棄
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- スマートフォン用 -->
+            <div class="accordion w3-hide-large">
+                <div class="accordion-title w3-blue w3-hover-indigo" @click="menu_display = !menu_display">
+                    Palette Converter メニューを
+                    <span v-if="menu_display">閉じる</span>
+                    <span v-else>開く</span>
+                    <transition name="rotate" mode="out-in">
+                        <i class="fas fa-chevron-up" v-if="menu_display" key="rotate1"></i>
+                        <i class="fas fa-chevron-down" v-else key="rotate2"></i>
+                    </transition>
+                </div>
+                <transition name="open">
+                    <div class="accordion-content w3-container" v-show="menu_display">
+                        <table>
+                            <tr style="vertical-align:middle;">
+                                <td>URL</td>
+                                <td>
+                                    <input type="text" v-model="sheet_url" style="height: 2.5em;" @change="revoke_main_data()">
+                                </td>
+                            </tr>
+                            <tr style="vertical-align:middle;">
+                                <td>ツール</td>
+                                <td>
+                                    <select v-model="system_selected" style="height: 2.5em;" @change="copy_system_tool">
+                                        <option v-for="k in systems" :value="k">{{k}}</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr style="vertical-align:middle;">
+                                <td colspan="2">
+                                    <button class="w3-btn w3-indigo w3-hover-blue w3-round" @click="process_button()" style="width:100%;">
+                                        <span v-show="!main_data_name">
+                                            <i class="fas fa-dice-d6"></i>
+                                            チャットパレットを出力
+                                        </span>
+                                        <span v-show="main_data_name">
+                                            <i class="fas fa-redo" style="margin-right:0.5em;"></i>
+                                            チャットパレット再出力
+                                        </span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr v-show="main_data_name" style="vertical-align:middle;">
+                                <td>読込中</td>
+                                <td>{{main_data_name}}</td>
+                            </tr>
+                            <tr v-show="main_data_name" style="vertical-align:middle;">
+                                <td colspan="2">
+                                    <button class="w3-btn w3-black w3-hover-dark-grey w3-round" @click="revoke_data()" style="width:100%;">
+                                        <i class="fas fa-power-off" style="margin-right:0.5em;"></i>
+                                        読み込み中データの破棄
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </transition>
+            </div>
+        </div>
+    </div>
+
+    <!-- オプション部分 -->
+    <div id="pl_options" v-cloak>
+        <!-- チャットパレット出力関係 -->
+        <transition>
+            <div class="w3-container" style="margin: 1em 0em;">
+                <!-- 基本的な出力のオプション -->
+                <p class="w3-container w3-leftbar w3-border-bottom w3-border-indigo" style="font-weight:bold;">
+                    <button class="w3-indigo w3-hover-blue" @click="show.sec_howtouse=!show.sec_howtouse" style="margin-right:1em;">
+                        開閉
+                    </button>
+                    《変換 -Palette Converter-》の使い方
+                </p>
+                <div class="w3-container w3-small" v-show="show.sec_howtouse">
+                    <div style="padding:0.25em;" class="w3-medium w3-border w3-light-grey explain-box">
+                        <span class="c-tooltip w3-text-indigo" data-tooltip="こういう風にツールチップが表示されます。">
+                            <i class="fas fa-question-circle"></i>
+                        </span>
+                        <span style="margin-left: 0.5em;">にカーソルを合わせると、簡単なヘルプが表示されます。</span>
+                    </div>
+                    <ol>
+                        <li>上の「キャラクターシート倉庫URL」の欄に、チャットパレットに変換したいキャラクターシートのURLを入力する。
+                            <ul>
+                                <li>この時、短縮URLサービスのURLは使用できない。</li>
+                            </ul>
+                        </li>
+                        <li>「使用ツール」から、使用予定のオンラインセッションツールを選択する。
+                            <ul>
+                                <li>選択できるのは<strong class="w3-text-red">「ココフォリア」「ユドナリウム」「ユドナリウムリリィ」「TRPGスタジオ」「Tekey」「Quoridorn」</strong>の6種。（R3/8/1時点では「Tekey」「Quoridorn」は機能的な差はない）</li>
+                                <li>該当するものがない場合は「なし」を選択すること。</li>
+                            </ul>
+                        </li>
+                        <li>「チャットパレット出力」をクリックすると、キャラクターシートからチャットパレット用テキストを出力する。
+                            <ul>
+                                <li>ココフォリアおよびユドナリウム（含リリィ）では、その後、引き続き設定を入力してキャラクター駒も作成できる。
+                                    <ul>
+                                        <li>ユドナリウム／ユドナリウムリリィのキャラクター駒は、zipファイルとして出力される。出力されたzipファイルを保存し、ツールにドラッグ＆ドロップで使用できる。</li>
+                                        <li>ココフォリアのキャラクター駒は「Clipboard API」用のテキストとして出力される。出力後はテキストをコピーし、ココフォリアの部屋上で貼り付け操作を行うこと。</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>出力のために取得したキャラクターシートのデータは一時的に保持しており、同じURLのシートから連続でパレットの出力を行う場合、一時的に保持したデータのほうから出力を行う。
+                            <ul>
+                                <li>データが保持されている間は、「読み込み中：●●」というキャラクターシートの名前が上に表示される。</li>
+                                <li>シート側を更新した等でデータを取得し直したい場合は「読み込み中データ破棄」のボタンをクリックすると、保持されていたデータが消去される。</li>
+                                <li>また、「キャラクターシート倉庫URL」の欄を変更すると、「読み込み中データ破棄」と同等の処理が行われる。</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- 基本的な出力のオプション -->
+                <p class="w3-container w3-leftbar w3-border-bottom w3-border-indigo" style="font-weight:bold;">
+                    <button class="w3-indigo w3-hover-blue" @click="show.sec_gen=!show.sec_gen" style="margin-right:1em;">
+                        開閉
+                    </button>
+                    基本的な出力のオプション
+                </p>
+                <div class="w3-container" v-show="show.sec_gen">
+                    <label class="r-margin afterbr">
+                        <input type="checkbox" v-model="general.output_general" checked>
+                        一般的な行動のテキストを出力する
+                        <span class="c-tooltip w3-text-indigo" data-tooltip="「一般的な行動」では、「アクションなしの宣言」「通常移動」「離脱移動」および「メジャーアクションによる各武器/乗り物での攻撃」の宣言テキストを出力します。">
+                            <i class="fas fa-question-circle"></i>
+                        </span>
+                    </label>
+                    <label class="r-margin afterbr">
+                        <input type="checkbox" v-model="general.output_arts" checked>
+                        取得アーツの情報を出力する
+                        <span class="c-tooltip w3-text-indigo" data-tooltip="取得しているアーツの使用宣言を行うためのテキストを出力します。出力の設定は、「アーツ・アイテムデータの出力」でも行えます。">
+                            <i class="fas fa-question-circle"></i>
+                        </span>
+                    </label>
+                    <label class="r-margin afterbr">
+                        <input type="checkbox" v-model="general.output_items" checked>
+                        取得アイテムの情報を出力する
+                        <span class="c-tooltip w3-text-indigo" data-tooltip="取得しているアイテムの使用宣言を行うためのテキストを出力します。出力の設定は、「アーツ・アイテムデータの出力」でも行えます。">
+                            <i class="fas fa-question-circle"></i>
+                        </span>
+                    </label>
+                    <label class="r-margin afterbr">
+                        <input type="checkbox" v-model="general.output_damage" checked>
+                        武器・乗り物のダメージロール用テキストを出力する
+                        <span class="c-tooltip w3-text-indigo" data-tooltip="所持している武器や乗り物によるダメージロールの式を出力します。出力の詳細は、「解説」や「武器・ダメージロールデータの出力」もご覧ください。">
+                            <i class="fas fa-question-circle"></i>
+                        </span>
+                    </label>
+                    <label class="r-margin afterbr">
+                        <input type="checkbox" v-model="general.output_reaction">
+                        一般的なリアクションのテキストを出力する
+                        <span class="c-tooltip w3-text-indigo" data-tooltip="「一般的なリアクション」では、「リアクション放棄の宣言」「ドッジ宣言」「ガード値が記入されている、各武器/乗り物によるガード宣言」の出力を行います。">
+                            <i class="fas fa-question-circle"></i>
+                        </span>
+                    </label>
+                    <ul style="margin-top: 1em;">
+                        <li style="list-style-type: none;">
+                            <strong>判定式の出力に関連するオプション項目群</strong>
+                            <ul>
+                                <li>判定式の出力全般
+                                    <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
+                                        <li>
+                                            <label>
+                                                <input type="checkbox" v-model="general.output_resistFalldown" style="vertical-align:middle; margin-right:0,5em;">
+                                                「堕落判定」向けの判定行を設け、キャラクターに紐付けるステータスに「絆数」を追加する
+                                            </label>
+                                            <span class="c-tooltip w3-text-indigo" data-tooltip="キャラクター駒の情報に 絆数 を追加し、堕落判定の判定式を自動出力するかどうかを設定できます。この設定を使用する場合、「思い出の品」の効果欄には [絆数D6] と書くのもよいでしょう。">
+                                                <i class="fas fa-question-circle"></i>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <label>
+                                                <input type="checkbox" v-model="general.output_judgeTextCalculated" style="vertical-align:middle; margin-right:0,5em;">
+                                                判定式を出力する時は、可能な限り計算したものを出力する
+                                            </label>
+                                            <span class="c-tooltip w3-text-indigo" data-tooltip="判定式が 肉体+2+2 のような書き方をされている場合に、これを {肉体}+4 など可能な限り加減算をまとめたものを表示するかどうかを決めることができます。">
+                                                <i class="fas fa-question-circle"></i>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            判定式の並べ替え基準：
+                                            <select v-model="general.sort_type" style="margin-right:1em;">
+                                                <option v-for="t in general.option_sort_type" :value="t">{{t}}</option>
+                                            </select>
+                                            <span class="c-tooltip w3-text-indigo" data-tooltip="一般的な判定式の並べ順を設定する項目です。">
+                                                <i class="fas fa-question-circle"></i>
+                                            </span>
+                                        </li>
+                                        <span class="w3-small w3-text-red prebr" style="margin-left: 1em;">{{general_sort_type_description}}</span>
+                                    </ul>
+                                </li>
+                                <li>アーツ「判定値」欄からの出力
+                                    <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
+                                        <li>
+                                            出力する判定式の選別：
+                                            <select v-model="arts.judge_type" style="margin-right:1em;">
+                                                <option v-for="t in arts.option_judge_type" :value="t">{{t}}</option>
+                                            </select>
+                                            <span class="c-tooltip w3-text-indigo" data-tooltip="アーツの「判定値」欄から判定式を抽出する際の、出力の設定です。">
+                                                <i class="fas fa-question-circle"></i>
+                                            </span>
+                                        </li>
+                                        <span class="w3-small w3-text-red prebr" style="margin-left: 1em;">{{judge_arts_description}}</span>
+                                    </ul>
+                                </li>
+                                <li>武器「命中」欄からの出力
+                                    <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
+                                        <li>出力する判定式の選別：
+                                            <select v-model="damagerolls.judge_type" style="margin-right: 1em;">
+                                                <option v-for="t in damagerolls.option_judge_type" :value="t">{{t}}</option>
+                                            </select>
+                                            <span class="c-tooltip w3-text-indigo" data-tooltip="武器の「命中」欄から判定式を抽出する際の、出力の設定です。">
+                                                <i class="fas fa-question-circle"></i>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            命中欄が符号のない整数の場合：
+                                            <label v-for="t in damagerolls.option_judge_head" style="margin-right: 1em;">
+                                                <input type="radio" v-model="damagerolls.judge_head_number" :value="t">
+                                                <span> {{t}}</span>
+                                            </label>
+                                            <span class="c-tooltip w3-text-indigo" data-tooltip="武器の「命中」欄が符号なしの整数の場合、その数字をそのまま判定の基準値として扱うか、プラス修正として扱うかを選べます。">
+                                                <i class="fas fa-question-circle"></i>
+                                            </span>
+                                        </li>
+                                        <span class="w3-small w3-text-red prebr afterbr" style="margin-left: 1em;">{{judge_weapons_description[0]}}</span>
+                                        <span class="w3-small w3-text-red prebr" style="margin-left: 1em;" v-show="judge_weapons_description.length > 1">{{judge_weapons_description[1]}}</span>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li style="list-style-type:none; margin-top:1em;" v-if="hasPoneGenerator">
+                            <strong>キャラクター駒出力に関するオプション群</strong>
+                            <ul>
+                                <li>駒出力全般に関するオプション
+                                    <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
+                                        <li>
+                                            <label>
+                                                <input type="checkbox" v-model="general.reOutput_pone_params" style="vertical-align:middle; margin-right:0,5em;">
+                                                チャットパレットを「再出力」する時、駒に紐づけるステータス／パラメータを都度初期化する
+                                            </label>
+                                        </li>
+                                        <li>
+                                            <label>
+                                                <input type="checkbox" v-model="general.output_pone_immediately" style="vertical-align:middle; margin-right:0,5em;">
+                                                チャットパレットを「出力」する時、即座に駒データも出力する
+                                            </label>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li v-if="general.session_tool.match(/ユドナリウム/)">
+                                    ユドナリウム系セッションツールに関するオプション
+                                    <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
+                                        <li>
+                                            <label>
+                                                <input type="checkbox" v-model="general.output_beastActionUdonarium" style="vertical-align:middle; margin-right:0,5em;">
+                                                《魔獣化》中の【行動値】を、「魔動」の名前で駒に実数値として紐付ける
+                                            </label>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div style="margin-top:1em; padding:0.25em;" class="w3-small w3-border w3-light-grey explain-box">
+                        <ul>
+                            <li>
+                                武器の種別欄に「魔獣」の記載がある場合、そのデータは《魔獣化》中のみ使用する想定でテキストが出力されます。
+                            </li>
+                            <li>
+                                「一般的な行動」で出力する「攻撃に使用する武器/乗り物」とは、「名前」「攻撃力」「種別」の欄が記入されていて、かつ種別欄に「白」「射」「乗」のいずれかの記入があるもののみを指します。
+                            </li>
+                            <li>
+                                「一般的なリアクション」で出力されるガードの宣言は、ガード値欄に記入があるものをすべてリストアップします。
+                            </li>
+                            <li style="list-style-type: none; margin-top:1em;">
+                                その他、「判定値」欄、「命中」欄の判定式化について、書き方の詳細は
+                                <a href="howtowrite.html" target="_blank">書き方の詳細</a>
+                                をご参照ください。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- アーツ・アイテムデータの出力 -->
+                <p class="w3-container w3-leftbar w3-border-bottom w3-border-indigo" style="font-weight:bold;">
+                    <button class="w3-indigo w3-hover-blue" @click="show.sec_arts=!show.sec_arts" style="margin-right:1em;">
+                        開閉
+                    </button>
+                    アーツ・アイテムデータの出力
+                </p>
+                <div class="w3-container" v-show="show.sec_arts">
+                    <ul style="list-style-type:none; margin-top:0;">
+                        <li>
+                            <label class="r-margin">
+                                <input type="checkbox" v-model="arts.timing_empty">
+                                「タイミング」が空欄のアーツ・アイテムを出力テキストに含める
+                            </label>
+                        </li>
+                        <li>
+                            <label class="r-margin afterbr">
+                                <input type="checkbox" v-model="arts.timing_auto">
+                                「タイミング」が「常時」のアーツ・アイテムを出力テキストに含める
+                            </label>
+                        </li>
+                        <li>
+                            <label class="r-margin afterbr">
+                                <input type="checkbox" v-model="arts.include_cost">
+                                アーツの「コスト」を出力テキストに含める
+                            </label>
+                        </li>
+                        <li>
+                            <label class="r-margin afterbr">
+                                <input type="checkbox" v-model="arts.include_note">
+                                アーツやアイテムの「効果」を出力テキストに含める
+                            </label>
+                        </li>
+                        <li>
+                            <input type="checkbox" disabled style="opacity:0; margin-right:0.5em;">
+                            アーツレベルの表示：
+                            <label class="r-margin" v-for="t in arts.option_display_level" style="margin-right: 1em;">
+                                <input type="radio" v-model="arts.display_level"  :value="t">
+                                {{t}}
+                            </label>
+                            <span class="c-tooltip w3-text-indigo" data-tooltip="アーツのLV欄の中身を評価し、数値化したものをもとに表示します。「1●」などの文字列を含む表記は、文字列以降の部分がすべて無視されます。">
+                                <i class="fas fa-question-circle"></i>
+                            </span>
+                        </li>
+                    </ul>
+
+                    <div style="margin-top:1em; padding:0.25em;" class="w3-small w3-border w3-light-grey explain-box">
+                        <div style="margin:1em;">アーツの「コスト」の出力は、以下の出力に対応します。</div>
+                        <ul>
+                            <li><strong>使用ツールが「ユドナリウムリリィ」の場合、リソース操作コマンドに即したテキストで出力を行います。</strong>
+                                <ul>
+                                    <li>これによって、アーツ宣言のテキストをチャットパレットから送信すると、即座にコストの支払いが行われます。
+                                        <span class="c-tooltip w3-text-indigo" data-tooltip="対応するリソースは「愛」「罪」「大罪」「反動」「FP」「人間性」の6種類です。">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </li>
+                                    <li>「効果参照」の一文を含むコストや、構文解析できなかったものは、リソース操作コマンドに対応しない形で出力されます。</li>
+                                </ul>
+                            </li>
+                            <li><strong>「モータル」のルーツを持つPCの場合、人間性コストを【FP】で代替する場合の数値を計算したうえで出力を行います。</strong>
+                                <ul>
+                                    <li>これは、ハーミット以外のルーツを持たない場合にのみ有効です。
+                                        <span class="c-tooltip w3-text-indigo" data-tooltip="《記憶封印》によって人間性コストを代替するルールが撤回されたモータルは、ハーミットのルーツとのマルチルーツはできないため。（GF24-6掲載時点）">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </li>
+                                    <li>コストの書き方から変換できなかったものは、そのまま出力されます。</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- ダメージロール＆武器データの出力 -->
+                <p class="w3-container w3-leftbar w3-border-bottom w3-border-indigo" style="font-weight:bold;">
+                    <button class="w3-indigo w3-hover-blue" @click="show.sec_damage=!show.sec_damage" style="margin-right:1em;">
+                        開閉
+                    </button>
+                    武器・ダメージロールデータの出力
+                </p>
+                <div class="w3-container" v-show="show.sec_damage">
+                    <label class="r-margin afterbr">
+                        <input type="checkbox" v-model="damagerolls.include_note">
+                        武器のダメージロールに「備考」欄の内容もあわせて出力する
+                    </label>
+                    <label class="r-margin afterbr">
+                        <input type="checkbox" v-model="damagerolls.include_sp_attack">
+                        アーツ効果欄に<b>[ ]</b>で囲まれた部分をダメージロールとして出力する
+                    </label>
+                    <p style="margin-top:1em; font-weight:bold;" class="w3-small w3-border w3-light-grey explain-box">
+                        ダメージロール式の書き方はユーザーによって書き方に幅が大きく、すべてに対応することができません。必ず出力された式を確認し、必要に応じて修正してください。<br>
+                        ダメージロール式作成について、書き方の詳細は
+                        <a href="howtowrite.html" target="_blank">書き方の詳細</a>
+                        をご参照ください。
+                    </p>
+                </div>
+
+                <!-- 各【能力値】判定＆堕落判定への個別の修正 -->
+                <p class="w3-container w3-leftbar w3-border-bottom w3-border-indigo" style="font-weight:bold;">
+                    <button class="w3-indigo w3-hover-blue" @click="show.sec_mods=!show.sec_mods" style="margin-right:1em;">
+                        開閉
+                    </button>
+                    各【能力値】判定＆堕落判定への個別の修正
+                </p>
+                <p class="w3-small">
+                    <span class="w3-text-red">※以下のアーツを取得している場合、この項目の設定を強く推奨します。→</span>
+                    <strong class="w3-text-red">《魔剣の使い手》《幻想存在》《ダメ人間》《ダメ半魔》などの常時判定修正がかかるアーツ、ファンブル値が変化する常時アーツ</strong><br>
+                    <span class="w3-text-red">※命中判定、ドッジの判定や、特定のアーツを使用するときのみにかかる修正は、出力後にテキストをコピペして調整してください。</span>
+                </p>
+                <div class="w3-container" id="sec_mods" style="display: flex;" v-show="show.sec_mods">
+                    <div>
+                        <table class="w3-border w3-striped table-padding w3-border-black">
+                            <tr>
+                                <th>【能力値】</th>
+                                <th>常時修正</th>
+                                <th>人間状態</th>
+                                <th>魔獣化中</th>
+                            </tr>
+                            <tr class="w3-pale-red">
+                                <th>全ての判定</th>
+                                <td>修正 <input type="number" v-model.number="mods.score_list.all.a"></td>
+                                <td>修正 <input type="number" v-model.number="mods.score_list.all.h"></td>
+                                <td>修正 <input type="number" v-model.number="mods.score_list.all.b"></td>
+                            </tr>
+                            <tr class="w3-pale-blue">
+                                <th>【基本能力値】<br>判定</th>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.baseAbility.a"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.baseAbility.h"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.baseAbility.b"></td>
+                            </tr>
+                            <tr>
+                                <th>【肉体】</th>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.body.a"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.body.h"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.body.b"></td>
+                            </tr>
+                            <tr>
+                                <th>【技術】</th>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.skill.a"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.skill.h"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.skill.b"></td>
+                            </tr>
+                            <tr>
+                                <th>【感情】</th>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.emotion.a"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.emotion.h"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.emotion.b"></td>
+                            </tr>
+                            <tr>
+                                <th>【加護】</th>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.divine.a"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.divine.h"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.divine.b"></td>
+                            </tr>
+                            <tr>
+                                <th>【社会】</th>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.society.a"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.society.h"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.society.b"></td>
+                            </tr>
+                            <tr class="w3-pale-blue">
+                                <th>【戦闘能力値】<br>判定</th>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.battleAbility.a"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.battleAbility.h"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.battleAbility.b"></td>
+                            </tr>
+                            <tr>
+                                <th>【白兵】</th>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.combat.a"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.combat.h"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.combat.b"></td>
+                            </tr>
+                            <tr>
+                                <th>【射撃】</th>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.shoot.a"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.shoot.h"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.shoot.b"></td>
+                            </tr>
+                            <tr>
+                                <th>【回避】</th>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.dodge.a"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.dodge.h"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.dodge.b"></td>
+                            </tr>
+                            <tr>
+                                <th>【行動】</th>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.action.a"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.action.h"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.action.b"></td>
+                            </tr>
+                            <tr class="w3-dark-grey" v-show="general.output_resistFalldown">
+                                <th>堕落判定</th>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.binds.a"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.binds.h"></td>
+                                <td>修正 <input type="number"  v-model.number="mods.score_list.binds.b"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="text-align: center;padding:0;">
+                                    <button @click="init_mods_list" class="w3-button w3-indigo w3-hover-blue w3-small w3-round" style="width:100%;height:100%;font-weight:bold;">
+                                        修正値とファンブル修正アーツ一覧をリセット
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="w3-container">
+                        <div class="w3-container">
+                            <p class="w3-border-bottom w3-leftbar w3-border-red" style="font-weight:bold; padding-left:0.5em;">記入の仕方</p>
+                            <ul class="w3-small">
+                                <li>それぞれの【能力値】で判定を行う時に、常時アーツや装備の効果でかかる達成値への修正について、<strong class="w3-text-red">数値で</strong>欄に記入する。（プラス修正の符号は不要）</li>
+                                <li>「常時修正」は《魔獣化》中かどうかにかかわらず常にかかる修正を記入する。</li>
+                                <li>「人間状態」は《魔獣化》していない時のみかかる修正を記入する。</li>
+                                <li>「魔獣化中」は《魔獣化》中のみかかる修正を記入する。</li>
+                                <li>命中判定などのパレットは別途コピー＆ペーストしつつ加工すること。</li>
+                            </ul>
+                        </div>
+                        <div class="w3-container">
+                            <p class="w3-border-bottom w3-leftbar w3-border-red" style="font-weight:bold; padding-left:0.5em;">記載の事例</p>
+                            <ul class="w3-small">
+                                <li><strong>《魔剣の使い手》</strong>：「全ての判定」→「常時修正」→「1」と記入</li>
+                                <li><strong>《幻想存在：●●》</strong>：対応する能力値→「魔獣化中」→「2」と記入</li>
+                                <li><strong>《ダメ人間》</strong>：「全ての判定」→「人間状態」→「-2」と記入</li>
+                                <li><strong>《ダメ魔物》</strong>：「全ての判定」→「人間状態」→「2」と記入</li>
+                            </ul>
+                        </div>
+                        <div class="w3-container">
+                            <p class="w3-border-bottom w3-leftbar w3-border-indigo" style="font-weight:bold; padding-left:0.5em;">汎用ファンブル値の設定</p>
+                            <p class="w3-small">　取得しているアーツにチェックを入れること。</p>
+                            <ul class="columns" style="list-style-type:none; padding-left:1em;">
+                                <li v-for="art in mods.arts_fumble_list">
+                                    <label>
+                                        <input type="checkbox" v-model="mods.arts_fumble" :value="art"><b>《{{art}}》</b>
+                                    </label>
+                                </li>
+                            </ul>
+                            <p class="w3-small">
+                                手動でクリティカル値に補正を掛ける場合、<b>2BB+10%{人間性}<span class="w3-text-red" style="text-decoration:underline">@-1</span></b> のように書くとよい。<br>
+                                手動でファンブル値に補正を掛ける場合、<b>2BB+10%{人間性}<span class="w3-text-red" style="text-decoration:underline">#+1</span></b> のように書くとよい。<br>
+                                複数組み合わせる場合、2BB+10%{人間性}@-1#+1 のように、人間性→クリティカル値修正→ファンブル値修正の順で書く。<br>
+                                修正値を記入する場合、2BB+10+3%{人間性} のように、人間性やクリティカル値修正を指定する前に記入すること。<br>
+                                「エヴィルセンス」および《それでこそ我がライバル！》は、2BB+10%{人間性}<strong class="w3-text-red" style="text-decoration: underline;">&3</strong> のように、&3 と最後に付けることで自動処理できる。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 解説 -->
+                <p class="w3-container w3-leftbar w3-border-bottom w3-border-indigo" style="font-weight:bold;">
+                    <button class="w3-indigo w3-hover-blue" @click="show.sec_explain=!show.sec_explain" style="margin-right:1em;">
+                        開閉
+                    </button>
+                    解説
+                </p>
+                <div class="w3-container" v-show="show.sec_explain">
+                    <p class="w3-border-bottom" style="font-weight:bold;">
+                        チャットパレットコンバーターを使用する際の、アーツ／武器の「判定値」「命中」欄の書き方
+                    </p>
+                    <ul class="w3-small">
+                        <li>アーツの「判定値」欄、武器の「命中」欄からチャットパレット用の判定式を作成する場合、以下の特別な書き方を行えます。
+                            <ul>
+                                <li>判定値欄に<span class="pl-padq w3-pale-blue">肉体</span>などの【能力値】名がある場合、<span class="pl-padq w3-pale-blue">{肉体}</span>などの予約語を使った式に変換します。</li>
+                                <li>その武器やアーツの判定でのみ<strong class="w3-text-red">クリティカル値を-1したい</strong>場合は、判定値欄内に<strong class="pl-padq w3-pale-blue">@-1</strong>と記入します。
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="《遠雷 -Type Long-》のような、クリティカル値が常に修正される武器で使用するとよいでしょう。">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span></li>
+                                <li>その武器やアーツの判定でのみ<strong class="w3-text-red">ファンブル値を+1したい</strong>場合は、判定値欄内に<strong class="pl-padq w3-pale-blue">#+1</strong>と記入します。
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="《フランケンシュタインの怪物》で獲得した武器や、《魔法の呪文》でコピーしたアーツで判定を行う場合に使用するとよいでしょう。">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </li>
+                                <li>その武器やアーツの判定で<strong class="w3-text-red">判定ダイスの「1・2の出目を3として扱う」効果を適用したい</strong>場合は、判定値欄内に<strong class="pl-padq w3-pale-blue">&3</strong>と記入します。
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="GF24-6時点では、GF誌先行掲載データの「エヴィルセンス」と《それでこそ我がライバル！》でのみ用いられている効果です。">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </li>
+                                <li>その武器やアーツの<strong class="w3-text-red">種別欄に「魔獣」と記入されている</strong>場合、《魔獣化》中用の判定式のみを作成します。
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="本来、BBTのルール上はアイテムの種別に「魔獣」は指定されません。ただし、本コンバーターでは利便性の都合上、アイテムにわざと「種別：魔獣」を設定されたものについては、テキスト出力を支援します。">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </li>
+                                <li>判定値欄が<strong class="w3-text-red">正負の符号から始まり、武器の種別欄に特定の文字を含む</strong>場合、判定値欄の戦闘に対応する【戦闘能力値】を挿入した上で式を作成します。
+                                    <ul>
+                                        <li><strong>種別欄に「白」を含む：</strong>【白兵】を挿入。白兵武器であることを表す。</li>
+                                        <li><strong>種別欄に「射」を含む：</strong>【射撃】を挿入。射撃武器であることを表す。</li>
+                                        <li><strong>種別欄に「乗」を含む：</strong>乗り物であることを表す。「白」「射」が含まれていなかった場合、さらに以下のチェックを行い対応する文字を挿入。
+                                            <ul>
+                                                <li>さらに種別欄に「魔艦」を含むか、名前または備考欄に「コスモマシン」「アームドヴィークル」「要塞宝具」「戦闘飛装脚」を含む：【射撃】を挿入。</li>
+                                                <li>それ以外：【白兵】を挿入。</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>判定値・命中欄が以下の条件のいずれかを満たすものは、判定式が作成されません。
+                                    <ul>
+                                        <li>「名称」欄、「判定値」「命中」欄のいずれかが空欄の場合</li>
+                                        <li>アーツの「判定値」欄が「自動」「成功」「効果」「参照」のいずれかの単語を含む場合</li>
+                                        <li>武器の「命中」欄の記載が<strong class="pl-padq w3-pale-blue">0</strong>のみの場合</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p class="w3-border-bottom" style="font-weight:bold;margin-top:1em;">
+                        ダメージロール式の特殊仕様
+                    </p>
+                    <ul class="w3-small">
+                        <li>武器の「攻撃力」欄から変換するダメージロール式では、以下の書き方がされている場合、式をある程度補完した状態で出力を行います。
+                            <ol style="margin: 1em 0em;">
+                                <li><span style="font-weight:bold;">式が「+」で始まる場合</span>
+                                    <ul>
+                                        <li>その武器で選択されている「属性」の能力値名を先頭に挿入した状態で式の解釈を行います。</li>
+                                        <li>例：+1D6 / 属性「肉体」選択」 → <span class="w3-pale-blue pl-padq">肉体+1D6</span>として解釈、変換を開始。</li>
+                                    </ul>
+                                </li>
+                                <li><span style="font-weight:bold;">能力値名が式に含まれている場合</span>
+                                    <ul>
+                                        <li>この部分を予約語に対応する文字列（ { } で囲まれたもの）に変換します。</li>
+                                        <li>例：【肉体】+1D6、肉体+1D6 → どちらも<span class="w3-pale-blue pl-padq">{肉体}+1D6</span>に変換。</li>
+                                    </ul>
+                                </li>
+                                <li><span style="font-weight:bold;">式の中に ( ) を含む</span>
+                                    <ul>
+                                        <li>《魔獣化》の効果中のみに反映される値を意味します。詳細は下記「魔獣化中限定の値」の項目をお読みください。</li>
+                                        <li>この関係上、ルールブックの記述通り(LV+1)D6などの表記を行うと、ほぼ確実に出力がおかしくなります。</li>
+                                        <li><strong class="w3-text-red">コンバーターを使用する場合、基本的には、データ記載の際には( )を外して計算しておいた値を書くことを推奨します。</strong></li>
+                                    </ul>
+                                </li>
+                            </ol>
+                        </li>
+                    </ul>
+                    <p class="w3-border-bottom" style="font-weight:bold;margin-top:1em;">
+                        判定値欄、ダメージロール式の「魔獣化中限定の値」設定
+                    </p>
+                    <ul class="w3-small">
+                        <li>判定値欄とダメージロール式では、《魔獣化》中の判定やダメージロールでのみ反映したい値を( )内に書くことで設定することができます。</li>
+                        <li>ただし、本ツールで自動解釈するのは以下のパターンに限られます。
+                            <ol style="margin: 1em 0em;">
+                                <li><span style="font-weight:bold;">( )内に書いた式がプラスかマイナスの符号で始まる場合</span>
+                                    <ul>
+                                        <li>単純に、補正値を追加の加減算として扱います。</li>
+                                        <li>例：10+1D6(+3) → 人間状態では<span class="w3-pale-blue pl-padq">10+1D6</span>、魔獣化中は<span class="w3-pale-blue pl-padq">10+1D6+3</span>として解釈。</li>
+                                    </ul>
+                                </li>
+                                <li><span style="font-weight:bold;">( )内と( )外の式が、両方とも途中でプラスかマイナスの符号を含む場合</span>
+                                    <ul>
+                                        <li>《魔獣化》の有無によって、その式全体を置き換えます。</li>
+                                        <li>例：10+1D6(15+2D6) → 人間状態では<span class="w3-pale-blue pl-padq">10+1D6</span>、魔獣化中は<span class="w3-pale-blue pl-padq">15+2D6</span>として解釈。</li>
+                                    </ul>
+                                </li>
+                                <li><span style="font-weight:bold;">( )外の式が途中で正負の符号を含み、かつ( )内の式が符号以外で始まる場合</span>
+                                    <ul>
+                                        <li>( )外の符号の直後に来る値を、( )内の式で置き換えます。</li>
+                                        <li>例：10+1D6(3D6) → 人間状態では<span class="w3-pale-blue pl-padq">10+1D6</span>、魔獣化中は<span class="w3-pale-blue pl-padq">10+3D6</span>として解釈。</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                        </li>
+                    </ul>
+                    <div class="w3-panel w3-border w3-padding-8 w3-small" style="margin: 0em 4em;">
+                        <div>
+                            以下のテキストボックスで試しに入力ができます。
+                        </div>
+                        <div style="margin: 1em;">
+                            <strong>テスト用文字列変換：</strong>
+                            <input type="text" v-model="test.test_convert" style="width:20em;">
+                            <div class="w3-panel">
+                                <span class="afterbr w3-text-indigo">人間状態：{{ testConvertBeastFormula[0] }}</span>
+                                <span class="afterbr w3-text-red">魔獣化中：{{ testConvertBeastFormula[1] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 出力テキスト -->
+                <p id="chatPaletteOutput" class="w3-container w3-leftbar w3-border-bottom w3-border-indigo" style="font-weight:bold;">
+                    <button class="w3-indigo w3-hover-blue" @click="show.sec_palette=!show.sec_palette" style="margin-right:1em;">
+                        開閉
+                    </button>
+                    チャットパレットデータ
+                </p>
+                <div style="margin:1em;">
+                    <button class="clipbtn w3-round w3-indigo w3-hover-blue" style="font-weight:bold;" data-clipboard-target="#palette-converter-result">
+                        チャットパレットデータをコピー
+                    </button>
+                </div>
+                <div class="w3-container" v-show="show.sec_palette">
+                    <textarea rows="15" id="palette-converter-result" class="w3-small" v-model="palette" placeholder="作成されたチャットパレットデータはここに表示されます。" style="width:100%;">
+                    </textarea>
+                </div>
+            </div>
+        </transition>
+
+        <!-- キャラクター駒作成機能：ユドナリウム -->
+        <transition>
+            <div class="w3-container" style="margin: 1em 0em;" v-show="allowPoneGenerator && general.session_tool.match(/ユドナリウム/)">
+                <!-- ユドナリウム（リリィ含む） -->
+                <p class="w3-container w3-leftbar w3-border-bottom w3-border-teal" style="font-weight:bold;">
+                    <button class="w3-teal w3-hover-green" @click="show.pone.udona = !show.pone.udona" style="margin-right:1em;">
+                        開閉
+                    </button>
+                    ユドナリウム用キャラクター駒作成（リリィ含む）
+                </p>
+                <div class="w3-container" v-show="show.pone.udona">
+                    <div style="margin-right: 2em;">
+                        <button class="w3-button w3-round w3-teal w3-hover-green" style="font-weight:bold;" @click="ignitePoneGenerator()">
+                            駒データをダウンロードする
+                        </button>
+                    </div>
+                    <div style="display:flex; align-items: flex-start; margin-top:1em; flex-wrap: wrap;">
+                        <table class="poneSet_table w3-small" border="1">
+                            <caption class="poneSet_caption w3-teal w3-medium w3-round-large">
+                                <i class="fas fa-tags"></i> 基本情報一覧
+                                <span class="c-tooltip poneSet_tip" data-tooltip="ユドナリウムにおける駒の基本情報に紐づける値を設定します。">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </caption>
+                            <thead>
+                                <tr class="w3-teal" style="font-weight:bold; text-align:center;">
+                                    <td>名称</td>
+                                    <td>種類</td>
+                                    <td>初期値</td>
+                                    <td>最大値</td>
+                                    <td>操作</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(t, index) in udona_pone.baseStatus" style="vertical-align:middle;">
+                                    <td><input class="poneSet" type="text" v-model="t.name" :disabled="t.name.match(/名前|サイズ/)"></td>
+                                    <td>
+                                        <select v-model="t.type" @change="udona_paramTypeChanged(t)" style="height:auto;" :disabled="t.name.match(/名前|サイズ/)">
+                                            <option value="normal">通常</option>
+                                            <option value="numberResource">リソース</option>
+                                            <option value="note">ノート</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input class="poneSet" type="text" v-model="t.value" v-show="t.type!=='note'">
+                                        <textarea class="poneSet" v-model="t.value" rows="2" v-show="t.type==='note'"></textarea>
+                                    </td>
+                                    <td>
+                                        <input class="poneSet" type="number" v-model="t.max" :disabled="t.type !== 'numberResource'">
+                                    </td>
+                                    <td>
+                                        <button @click="control_status_ccfolia($event, udona_pone.baseStatus, 'up')" class="manuever_stats" :disabled="index == 0 || t.name.match(/名前|サイズ/)">∧</button>
+                                        <button @click="control_status_ccfolia($event, udona_pone.baseStatus, 'down')" class="manuever_stats" :disabled="index == udona_pone.baseStatus.length-1 || t.name.match(/名前|サイズ/)">∨</button>
+                                        <button @click="control_status_ccfolia($event, udona_pone.baseStatus)" class="manuever_stats" :disabled="t.name.match(/名前|サイズ/)">×</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">
+                                        <button class="w3-button w3-round w3-teal w3-hover-green" @click="new_param_udonarium(udona_pone.baseStatus)" style="width:100%;">
+                                            基本情報を追加する
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">
+                                        <button class="w3-button w3-round w3-black w3-hover-dark-grey" @click="resetStatusAndParams_udonarium('baseStatus')" style="font-weight:bold;margin-right:0.25em;padding:0.5em;width:100%;">
+                                            基本情報の項目を初期化
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <table class="poneSet_table w3-small" border="1">
+                            <caption class="poneSet_caption w3-teal w3-medium w3-round-large">
+                                <i class="fas fa-tags"></i> 【能力値】一覧
+                                <span class="c-tooltip poneSet_tip" data-tooltip="【能力値】の一覧を入力します。ユドナリウムの駒では、《魔獣化》中の【能力値】はチャットパレット側に記録されています。">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </caption>
+                            <thead>
+                                <tr class="w3-teal" style="font-weight:bold; text-align:center;">
+                                    <td>名称</td>
+                                    <td>値</td>
+                                    <td>操作</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(t, index) in udona_pone.baseParams">
+                                    <td><input class="poneSet" type="text" v-model="t.name"></td>
+                                    <td>
+                                        <input class="poneSet" type="number" v-model.number="t.value">
+                                    </td>
+                                    <td>
+                                        <button @click="control_status_ccfolia($event, udona_pone.baseParams, 'up')" class="manuever_stats" :disabled="index == 0">∧</button>
+                                        <button @click="control_status_ccfolia($event, udona_pone.baseParams, 'down')" class="manuever_stats" :disabled="index == udona_pone.baseParams.length-1">∨</button>
+                                        <button @click="control_status_ccfolia($event, udona_pone.baseParams)" class="manuever_stats">×</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">
+                                        <button class="w3-button w3-round w3-teal w3-hover-green" @click="new_param_udonarium(udona_pone.baseParams)" style="width:100%;">
+                                            【能力値】を追加する
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">
+                                        <button class="w3-button w3-round w3-black w3-hover-dark-grey" @click="resetStatusAndParams_udonarium('baseParams')" style="font-weight:bold;margin-right:0.25em;padding:0.5em;width:100%;">
+                                            【能力値】の項目を初期化
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <table class="poneSet_table w3-small" border="1">
+                            <caption class="poneSet_caption w3-teal w3-medium w3-round-large">
+                                <i class="fas fa-tags"></i> 絆・エゴ
+                                <span class="c-tooltip poneSet_tip" data-tooltip="絆・エゴ情報の出力枠を作ります。不要なら「すべて削除」ボタンを押してください。">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </caption>
+                            <thead>
+                                <tr class="w3-teal" style="font-weight:bold; text-align:center;">
+                                    <td></td>
+                                    <td>名称と関係</td>
+                                    <td>操作</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(t, index) in udona_pone.memoBinds">
+                                    <td><input class="poneSet" type="text" v-model="t.name" style="width: 5em;" disabled></td>
+                                    <td>
+                                        <input class="poneSet" type="text" v-model="t.value" style="width: 13em;">
+                                    </td>
+                                    <td>
+                                        <button @click="control_status_ccfolia($event, udona_pone.memoBinds, 'up')" class="manuever_stats" :disabled="index == 0">∧</button>
+                                        <button @click="control_status_ccfolia($event, udona_pone.memoBinds, 'down')" class="manuever_stats" :disabled="index == udona_pone.memoBinds.length-1">∨</button>
+                                        <button @click="control_status_ccfolia($event, udona_pone.memoBinds)" class="manuever_stats">×</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">
+                                        <button class="w3-button w3-round w3-teal w3-hover-green" @click="new_param_udonarium(udona_pone.memoBinds)" style="width:100%;">
+                                            絆・エゴ枠を追加する
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">
+                                        <button class="w3-button w3-round w3-black w3-hover-dark-grey" @click="resetStatusAndParams_udonarium('memoBinds')" style="font-weight:bold;margin-right:0.25em;padding:0.5em;width:100%;">
+                                            絆・エゴ枠の項目を初期化
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">
+                                        <button class="w3-button w3-round w3-black w3-hover-dark-grey" @click="udona_pone.memoBinds = []" style="width:100%;">
+                                            すべて削除
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <table class="poneSet_table w3-small" border="1" v-show="general.session_tool==='ユドナリウムリリィ'">
+                            <caption class="poneSet_caption w3-teal w3-medium w3-round-large">
+                                <i class="fas fa-tags"></i> リリィ：バフパレット
+                                <span class="c-tooltip poneSet_tip" data-tooltip="ユドナリリィ用「バフパレット」の出力です。「R持続」の欄は、そのラウンドで効果が終了するものにチェックを入れてください。">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </caption>
+                            <thead>
+                                <tr class="w3-teal" style="font-weight:bold; text-align:center;">
+                                    <td>名称</td>
+                                    <td>効果</td>
+                                    <td>R持続</td>
+                                    <td>操作</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(t, index) in udona_pone.lilyBuffPalette">
+                                    <td><input class="poneSet" type="text" v-model="t.name" style="width: 6em;"></td>
+                                    <td>
+                                        <input class="poneSet" type="text" v-model="t.effect" style="width: 12em;">
+                                    </td>
+                                    <td style="vertical-align: middle; text-align: center;">
+                                        <input type="checkbox" v-model="t.round" style="vertical-align: middle;">
+                                    </td>
+                                    <td>
+                                        <button @click="control_status_ccfolia($event, udona_pone.lilyBuffPalette, 'up')" class="manuever_stats" :disabled="index == 0">∧</button>
+                                        <button @click="control_status_ccfolia($event, udona_pone.lilyBuffPalette, 'down')" class="manuever_stats" :disabled="index == udona_pone.lilyBuffPalette.length-1">∨</button>
+                                        <button @click="control_status_ccfolia($event, udona_pone.lilyBuffPalette)" class="manuever_stats">×</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td style="text-align:center;">
+                                        <select v-model="show.lilySelectedBS" style="height:3em; width:100%;">
+                                            <option v-for="bs in show.option_lilyBS" :value="bs">{{bs}}</option>
+                                        </select>
+                                    </td>
+                                    <td colspan="3" style="text-align:center;">
+                                        <button class="w3-button w3-round w3-teal w3-hover-green" @click="udonaLily_newBuffPalette(show.lilySelectedBS)" style="width:100%;">
+                                            バフパレット枠を追加
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">
+                                        <button class="w3-button w3-round w3-black w3-hover-dark-grey" @click="udona_pone.lilyBuffPalette = []" style="width:100%;">
+                                            すべて削除
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <!-- キャラクター駒作成機能：ココフォリア -->
+        <transition>
+            <div class="w3-container" style="margin: 1em 0em;" v-show="allowPoneGenerator && general.session_tool === 'ココフォリア'">
+                <!-- ココフォリア -->
+                <p class="w3-container w3-leftbar w3-border-bottom w3-border-teal" style="font-weight:bold;">
+                    <button class="w3-teal w3-hover-green" @click="show.pone.ccfolia = !show.pone.ccfolia" style="margin-right:1em;">
+                        開閉
+                    </button>
+                    ココフォリア用キャラクター駒作成
+                </p>
+                <div class="w3-container" v-show="show.pone.ccfolia">
+                    <div style="margin:1em;">
+                        <button class="w3-button w3-round w3-teal w3-hover-green" style="font-weight:bold;" @click="ignitePoneGenerator()">
+                            駒データ用のテキストを出力する
+                        </button>
+                    </div>
+                    <div style="display:flex; align-items:center; margin:1em;">
+                        <div v-show="ccfolia_pone.completedText" style="margin-right: 1em;">
+                            <button class="clipbtn w3-round w3-indigo w3-hover-blue" style="font-weight:bold;" data-clipboard-target="#ccfoliaPoneForClipboardAPI">
+                                コピー
+                            </button>
+                        </div>
+                        <div v-show="ccfolia_pone.completedText" class="w3-small">
+                            <input id="ccfoliaPoneForClipboardAPI" type="text" v-model="ccfolia_pone.completedText" style="width: 15em;">
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:flex-start; flex-wrap:wrap; margin-top:1em;">
+                        <table class="poneSet_table w3-small" border="1">
+                            <caption class="poneSet_caption w3-teal w3-medium w3-round-large">
+                                <i class="fas fa-tags"></i> ステータス一覧
+                                <span class="c-tooltip poneSet_tip" data-tooltip="ココフォリアの画面左側に表示される、「盤面キャラクター一覧」で表示される「ステータス」頻繁に操作する値一覧の編集を行います。分数表示にしたくない場合は、最大値を「0」にしてください。また、9個目以降のステータスは、一覧には表示されません。（一覧からその駒をクリックすると、編集はできます。）">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </caption>
+                            <thead>
+                                <tr class="w3-teal" style="font-weight:bold; text-align:center;">
+                                    <td>ステータス名</td>
+                                    <td>初期値</td>
+                                    <td>最大値</td>
+                                    <td>操作</td>
+                                    <td>
+                                        変換
+                                        <span class="c-tooltip poneSet_tip_nomargin" data-tooltip="ボタンをクリックすると、そのステータスをパラメータに変更します。この時、最大値の情報は破棄されます。">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(t, index) in ccfolia_pone.status">
+                                    <td><input :class="[index > 7 ? 'poneSet w3-pale-red' : 'poneSet']" type="text" v-model="t.label"></td>
+                                    <td><input :class="[index > 7 ? 'poneSet w3-pale-red' : 'poneSet']" type="number" v-model.number="t.value" ></td>
+                                    <td><input :class="[index > 7 ? 'poneSet w3-pale-red' : 'poneSet']" type="number" v-model.number="t.max"></td>
+                                    <td>
+                                        <button @click="control_status_ccfolia($event, ccfolia_pone.status, 'up')" class="manuever_stats" :disabled="index == 0">∧</button>
+                                        <button @click="control_status_ccfolia($event, ccfolia_pone.status, 'down')" class="manuever_stats" :disabled="index == ccfolia_pone.status.length-1">∨</button>
+                                        <button @click="control_status_ccfolia($event, ccfolia_pone.status)" class="manuever_stats">×</button>
+                                    </td>
+                                    <td>
+                                        <button @click="control_status_ccfolia($event, ccfolia_pone.status, 'trans-P')" class="manuever_stats" style="margin:0 0.5em;">
+                                            ＞
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">
+                                        <button class="w3-button w3-round w3-teal w3-hover-green" @click="new_resource_ccfolia('status')" style="width:100%;">
+                                            ステータスを追加する
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">
+                                        <button class="w3-button w3-round w3-black w3-hover-dark-grey" @click="resetStatusAndParams_ccfolia('status')" style="font-weight:bold;margin-right:0.25em;padding:0.5em;width:100%;">
+                                            ステータス項目を初期化
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <table class="poneSet_table w3-small" border="1">
+                            <caption class="poneSet_caption w3-teal w3-medium w3-round-large">
+                                <i class="fas fa-tags"></i> パラメータ一覧
+                                <span class="c-tooltip poneSet_tip" data-tooltip="ステータス以外の、あまり頻繁に操作はしない値はこちらに入力してください。《罪の悦楽》などで都度操作することのある【能力値】は、「ステータス」に変換してしまうのもよいでしょう。">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </caption>
+                            <thead>
+                                <tr class="w3-teal" style="font-weight:bold; text-align:center;">
+                                    <td>
+                                        変換
+                                        <span class="c-tooltip poneSet_tip_nomargin" data-tooltip="ボタンをクリックすると、そのパラメータをステータスに変換します。ただし、パラメータが文字列を含む場合は正しく変換できない場合があります。変換に成功した時、最大値を自動的にセットします。">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </td>
+                                    <td>パラメータ名</td>
+                                    <td>値</td>
+                                    <td>操作</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(t, index) in ccfolia_pone.params">
+                                    <td>
+                                        <button @click="control_status_ccfolia($event, ccfolia_pone.params, 'trans-S')" class="manuever_stats" :disabled="isNaN(parseInt(t.value, 10))" style="margin:0 0.5em;">
+                                            ＜
+                                        </button>
+                                    </td>
+                                    <td><input class="poneSet" type="text" v-model="t.label"></td>
+                                    <td><input class="poneSet" type="text" v-model="t.value"></td>
+                                    <td>
+                                        <button @click="control_status_ccfolia($event, ccfolia_pone.params, 'up')" class="manuever_stats" :disabled="index == 0">∧</button>
+                                        <button @click="control_status_ccfolia($event, ccfolia_pone.params, 'down')" class="manuever_stats" :disabled="index == ccfolia_pone.params.length-1">∨</button>
+                                        <button @click="control_status_ccfolia($event, ccfolia_pone.params)" class="manuever_stats">×</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">
+                                        <button class="w3-button w3-round w3-teal w3-hover-green" @click="new_resource_ccfolia('params')" style="width:100%;">
+                                            パラメータを追加する
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">
+                                        <button class="w3-button w3-round w3-black w3-hover-dark-grey" @click="resetStatusAndParams_ccfolia('params')" style="font-weight:bold;margin-right:0.25em;padding:0.5em;width:100%;">
+                                            パラメータ項目を初期化
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <table class="poneSet_table w3-small" border="1">
+                            <caption class="poneSet_caption w3-teal w3-medium w3-round-large">
+                                <i class="fas fa-tags"></i> 駒の名前、メモ欄
+                                <span class="c-tooltip poneSet_tip" data-tooltip="駒の名前や、マウスオンしたときに表示されるテキストを編集します。">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </caption>
+                            <tbody>
+                                <tr>
+                                    <td class="w3-teal" style="font-weight:bold;padding:0.25em;text-align:center;">名前</td>
+                                    <td><input type="text" class="poneSet" v-model="ccfolia_pone.name" style="width:100%;"></td>
+                                </tr>
+                                <tr>
+                                    <td class="w3-teal" style="font-weight:bold;padding:0.25em;text-align:center;width:100%;">メモ欄</td>
+                                    <td style="vertical-align: middle;">
+                                        <textarea class="afterbr" v-model="ccfolia_pone.memo" cols="35" rows="10"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="w3-teal" style="font-weight:bold;padding:0.25em;text-align:center;" rowspan="2">引用</td>
+                                    <td style="padding:0 0.5em;text-align:center;">
+                                        <button class="w3-button w3-round w3-teal w3-hover-green" @click="quote_memo_ccfolia('profile')" style="font-weight:bold;margin-right:0.25em;padding:0.5em;">
+                                            プロフィール
+                                        </button>
+                                        <button class="w3-button w3-round w3-teal w3-hover-green" @click="quote_memo_ccfolia('kinds')" style="font-weight:bold;margin-right:0.25em;padding:0.5em;">
+                                            種別
+                                        </button>
+                                        <button class="w3-button w3-round w3-teal w3-hover-green" @click="quote_memo_ccfolia('SA')" style="font-weight:bold;margin-right:0.25em;padding:0.5em;">
+                                            【SA】
+                                        </button>
+                                        <button class="w3-button w3-round w3-teal w3-hover-green" @click="quote_memo_ccfolia('binds')" style="font-weight:bold;margin-right:0.25em;padding:0.5em;">
+                                            絆・エゴ
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <button class="w3-button w3-round w3-black w3-hover-dark-grey" @click="ccfolia_pone.memo=''" style="font-weight:bold;margin-right:0.25em;padding:0.5em;width:100%;">
+                                            メモ欄の記載をリセット
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="poneSet_table w3-small" border="1">
+                            <caption class="poneSet_caption w3-teal w3-medium w3-round-large">
+                                <i class="fas fa-tags"></i> その他の駒情報
+                                <span class="c-tooltip poneSet_tip" data-tooltip="駒のサイズなど、その他の駒に関する情報を設定します。">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </caption>
+                            <tbody>
+                                <tr>
+                                    <td class="w3-teal" style="font-weight:bold;padding:0.25em;text-align:center;">サイズ</td>
+                                    <td style="text-align:left;">
+                                        <input type="number" class="poneSet" v-model.number="ccfolia_pone.size">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="w3-teal" style="font-weight:bold;padding:0.25em;text-align:center;">設定</td>
+                                    <td style="vertical-align: middle;text-align:left;">
+                                        <label class="afterbr">
+                                            <s><input type="checkbox" v-model="ccfolia_pone.active" disabled style="vertical-align: middle;"> 駒をアクティブ状態で追加する</s>
+                                        </label>
+                                        <label class="afterbr">
+                                            <input type="checkbox" v-model="ccfolia_pone.secret" style="vertical-align: middle;"> ステータスを非公開にする
+                                        </label>
+                                        <label class="afterbr">
+                                            <input type="checkbox" v-model="ccfolia_pone.invisible" style="vertical-align: middle;"> 発言時キャラクターを表示しない
+                                        </label>
+                                        <label class="afterbr">
+                                            <input type="checkbox" v-model="ccfolia_pone.hideStatus" style="vertical-align: middle;"> 盤面キャラクター一覧に表示しない
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="4" class="w3-teal" style="font-weight:bold;padding:0.25em;text-align:center;">発言色</td>
+                                    <td style="text-align:left;">
+                                        <input type="text" class="poneSet" v-model="ccfolia_pone.color" style="width:75%;">
+                                        <span style="margin-left:0.5em;" class="c-tooltip poneSet_tip" data-tooltip="チャット上の文字カラー設定です。16進数によるカラーコードの自由記述にも対応しています。簡易のサンプルは表の下部分をご確認ください。">
+                                            <i class="fas fa-question-circle w3-medium"></i>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="font-weight:bold;">発言色プリセット</div>
+                                        <div style="display: flex; flex-wrap: wrap; width: 20em;">
+                                            <button v-for="i in show.color_preset" class="colorPickPreset" :key="i" :style="{'background-color':i}" @click="ccfolia_pone.color=i"></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #454545; padding: 0.25em 0.5em;">
+                                        <strong :style="{color: ccfolia_pone.color}">名前：</strong>
+                                        <span style="color: #FFFFFF;">発言サンプル</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #FFFFFF; padding: 0.25em 0.5em;">
+                                        <strong :style="{color: ccfolia_pone.color}">名前：</strong>
+                                        <span :style="{color: ccfolia_pone.color}">出力ログサンプル</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </div>
+
+    <div id="pl-report" class="w3-panel">
+        <p class="w3-container w3-leftbar w3-border-bottom w3-border-indigo" style="font-weight:bold;">
+            <button class="w3-indigo w3-hover-blue" @click="showSwitch=!showSwitch" style="margin-right:1em;">
+                開閉
+            </button>
+            要望等の送信
+        </p>
+        <div v-if="showSwitch" v-cloak>
+            <p class="w3-small">
+                変換に失敗したことの報告（変換はできたが意図した通りの変換ができなかった場合も含む）その他の要望などは以下のフォームを入力し、送信してください。<br>
+                <strong class="w3-pale-red" style="padding: 0.2em 0; margin: 0.5em 0;">背景色が赤い項目は必須項目です。</strong>
+            </p>
+            <p v-if="subject === '意図通りに変換されない'" class="w3-text-red w3-small" style="font-weight:bold;">
+                「意図通りに変換されない」を選んでいる場合は、詳細欄に必ず「～～の部分は、『こういう風に』変換されてほしかった」というように、元々の意図を詳細欄にてご説明ください。
+            </p>
+            <table class="w3-small request-form">
+                <tr>
+                    <td>お名前</td>
+                    <td><input type="text" v-model="name"></td>
+                </tr>
+                <tr>
+                    <td>要件</td>
+                    <td>
+                        <select v-model="subject">
+                            <option value="変換失敗">変換失敗</option>
+                            <option value="意図通りに変換されない">意図通りに変換されない</option>
+                            <option value="要望">要望</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr :class="{'w3-pale-red': evalRequiredSheetURL}">
+                    <td>URL</td>
+                    <td><input type="text" v-model="sheet" placeholder="キャラクターシート倉庫のURLを記載" :required="evalRequiredSheetURL"></td>
+                </tr>
+                <tr :class="{'w3-pale-red': evalRequiredComment}">
+                    <td>詳細</td>
+                    <td>
+                        <textarea cols="50" rows="6" v-model="comment" style="display: block;" :required="evalRequiredComment"
+                            placeholder="「こう変換されてほしい」等の意図や、ツールに関する要望等は、この欄に記載してください。「変換失敗」以外を選んだ場合、本項目は必須入力となります。">
+                        </textarea>
+                    </td>
+                </tr>
+            </table>
+            <button class="w3-button w3-indigo w3-hover-blue" onClick="sendRequest()" style="margin: 1em;">
+                要望・報告を送信
+            </button>
+        </div>
+    </div>
+
+    <!-- 9: 更新履歴 -->
+    <div class="w3-container" style="margin-bottom: 2em;">
+        <p class="w3-border-bottom w3-leftbar w3-border-indigo" style="font-weight:bold; padding-left:0.5em;">更新履歴</p>
+        <p class="w3-small">
+            過去の更新履歴は <A href="patchnotes.html" target="_blank">Patchnotes</A> でご確認ください。
+        </p>
+        <ul class="w3-small">
+            <li><b>2021/8/4：V3 体験版 0.0.2</b>
+                <ul>
+                    <li>ココフォリア駒作成、ユドナリウム駒作成の機能まで実装し、V2でできたことのほとんどは実行可能に。</li>
+                    <li>「チャットパレット作成と同時に即駒データ作成」の機能はオプションとして残していますが、<strong class="w3-text-red">チャットパレットをしっかり確認してから駒データを保存することを強く推奨します。</strong></li>
+                </ul>
+            </li>
+            <li><b>2021/7/30：V3 体験版 0.0.1</b>
+                <ul>
+                    <li>判定値式の部分だけをチェックできる体験版です。</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 10: ソースコード -->
+    <div class="w3-container" style="margin-bottom: 2em;">
+        <p class="w3-border-bottom w3-leftbar w3-border-indigo" style="font-weight:bold; padding-left:0.5em;">ソースコード</p>
+        <p class="w3-small">
+            Githubにて公開予定です。
+        </p>
+    </div>
+
+    <footer class="w3-container w3-dark-grey w3-small" style="padding-top: 1em; text-align: center;">
+        <p style="font-weight:bold; border-bottom: solid 1px #9e9e9e; margin:0 4em 1em 4em; padding-bottom: 0.5em;">
+            《変換 -Palette Converter-》
+        </p>
+        <p style="border-bottom: solid 1px #9e9e9e; margin:0 4em 1em 4em; padding-bottom: 1em;">
+            Copyright (c) 2021 Yu Krasaka <a href="https://twitter.com/u_krasaka" target="_blank">(Twitter: @u_krasaka)</a><br>
+            Released under the MIT license<br>
+            <a href="https://opensource.org/licenses/mit-license.php" target="_blank">https://opensource.org/licenses/mit-license.php</a>
+        </p>
+        <p>
+            「ビーストバインド トリニティ」は、有限会社ファーイースト・アミューズメント・リサーチの著作物です。
+        </p>
+    </footer>
+
+<!-- Vue.js -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/vue@3.1.1/dist/vue.global.prod.js" crossorigin="anonymous"></script> -->
+<script src="https://unpkg.com/vue@next" crossorigin="anonymous"></script>
+<!-- FileSaver: ファイル保存 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.js" integrity="sha512-B+gr+zLWg81qxVwvtYwKrmjvQtZKD/GGFF7jD80OfzbqFw+NsbS5faEqpCO7Q7oRw1bYi0+WLJf54j8Vm7NADw==" crossorigin="anonymous"></script>
+<!-- jsZIP: zipファイルの作成 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.js" integrity="sha512-djAJLNukP3WdWmwP/Y05w99aCX6u1jInpshdwiUKbXcQ9y/8BpMtsPsVrVyUbmtEx7wbqFpBq4sGOnIFVScFQQ==" crossorigin="anonymous"></script>
+<!-- Clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js" crossorigin="anonymous"></script>
+<!-- Font Awesome -->
+<script src="https://kit.fontawesome.com/2a572495d4.js" crossorigin="anonymous"></script>
+<!-- javascriptファイルの読み込み -->
+<script type="text/javascript" src="script/core.js"></script> <!-- 基本機能 -->
+<script type="text/javascript" src="script/vue_core.js"></script> <!-- 基本機能 -->
+<script type="text/javascript" src="script/report.js"></script> <!-- 基本機能 -->
+<script type="text/javascript" src="script/sha256.js"></script> <!-- Base64のハッシュ変換 -->
+<script type="text/javascript" src="script/eval-calculation.js"></script> <!-- 計算 -->
+<!-- Clipboard.jsで使用する設定を準備 -->
+<script>
+    const clipboard = new ClipboardJS('.clipbtn');
+    // .clipbtnをすべて取得
+    const buttons = document.querySelectorAll('.clipbtn');
+    // button.clipbtnからマウスが外れた時、ツールチップを削除
+    for(let i of buttons) { i.addEventListener("mouseleave", clearClipTooltip); }
+    // ツールチップ削除の処理
+    function clearClipTooltip(e) { e.currentTarget.classList.remove("copy-tooltip") }
+    // ツールチップの追加
+    function showClipTooltip(element) { element.classList.add("copy-tooltip"); }
+    // クリップボードへのコピーが成功したら、ツールチップを表示
+    clipboard.on("success", function(e) { showClipTooltip(e.trigger); });
+</script>
+
+</body>
+
+</html>

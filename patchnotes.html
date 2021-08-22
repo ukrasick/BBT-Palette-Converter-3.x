@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+	    <!-- OGPタグの設定 -->
+  		<meta property="og:url" content="http://niltheria.daynight.jp/bbt/tools/index.html" />
+		<meta property="og:title" content="BBT セッション準備支援ツール" />
+		<meta property="og:description" content="「ビーストバインドトリニティ」用の、主にオンラインセッションの準備を簡略化するためのwebツール集。" />
+		<meta property="og:image" content="http://niltheria.daynight.jp/sitelogo_summary.png" />
+		<meta property="og:type" content="article" />
+		<meta property="og:site_name" content="NiLtheria" />
+		<meta property="og:locale" content="ja_JP" />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:site" content="@u_krasaka" />
+    <!-- ここまで -->
+
+    <!-- HTML タイトル -->
+    <title>BBT チャットパレットコンバーター パッチノート</title>
+
+    <!-- CSSの設定 -->
+    <link href="css/w3.css" rel="stylesheet" type="text/css">
+    <link href="css/palette_converter3.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+    <!-- タイトルスライド -->
+    <div class="w3-container w3-indigo">
+        <h2>《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 Patch Notes</h2>
+        <p class="w3-small">
+            《変換 -Palette Converter-》は、<a href="http://character-sheets.appspot.com/" target="_blank" class="w3-hover-blue">キャラクターシート倉庫</a>に保存されたBBTのキャラクターシートから、各種オンラインセッションツールで使用するチャットパレットを生成する準備支援ツールです。<br>
+            本ページは、その更新履歴を掲載しています。
+        </p>
+    </div>
+
+    <div class="w3-container">
+
+        <h3 class="w3-border-bottom w3-border-blue"><span class="w3-blue-grey w3-tag w3-round-large" style="margin:0.25em;" >ver 3.0.0(Beta)</span> 《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》V3: Trial Version </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2021/8/22</p>
+            <ul class="patchlist">
+                <li>以下の機能を追加しました。
+                    <ul style="margin-top:1em;">
+                        <li class="subtitle">「書き方の詳細/how to write」を更新しました。
+                            <ul class="subcontent">
+                                <li>判定値欄に入力して対応する【能力値】はひとつだけということを明示しました。【白兵値】か【射撃値】のような判定欄の書き方ではなく、必要なものだけを記載してください。（武器の都合で両面使い分ける場合は、武器命中欄のほうから出力された式を手動で編集する方が確実です）</li>
+                                <li>括弧展開のためのコロン書式の中に、さらに括弧を入れ子にすると正常に変換されない旨を追記しました。</li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">レイアウトを調整しました。
+                            <ul class="subcontent">
+                                <li>簡易的なレスポンシブデザインに対応しました。画面幅が狭い場合、URL入力欄が開閉式に変化します。</li>
+                                <li>チャットパレット部分にもコピー用のボタンを設置しました。</li>
+                                <li>コピー用のボタンを押した後、ツールチップが表示されるようになりました。</li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">報告・要望欄を追加しました。
+                            <ul class="subcontent">
+                                <li>変換に失敗した、成功はしたが自分の意図通りにならなかったのでこうしてほしい、などの要望を送信できるフォームを追加しました。</li>
+                                <li>送られた内容は、専用のDiscordサーバーでwebhookとして受け取り、確認させていただきます。</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-blue"><span class="w3-blue-grey w3-tag w3-round-large" style="margin:0.25em;" >ver 3.0.0(Alpha)</span> 《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》V3: Trial Version </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2021/8/5</p>
+            <ul class="patchlist">
+                <li>Vue.jsを触るのが楽しかったので追加の更新を行いました。
+                    <ul>
+                        <li>Enemy Editor 2で初めて触りましたが、学習コストも少なく済んでDOM操作も楽になるのは自分の需要にとてもマッチしていた。</li>
+                        <li>Javascriptによる直接のDOM操作で全てを乗り切っていたのがApostle.CCなので、たぶんこれもいずれ作り直すのかな……</li>
+                    </ul>
+                </li>
+                <li>ver 2.X系からver 3.Xへの移行にあたって、以下の機能が新規に実装されました。
+                    <ul style="margin-top:1em;">
+                        <li class="subtitle">HTTPS接続下でも処理ができるよう、処理方法を調整しました。
+                            <ul class="subcontent">
+                                <li>HTTP接続下あるいはローカルでの使用時も、従来通り使用できます。（ローカル使用時もインターネット接続は必須です）</li>
+                                <li>Alpha/Beta運用終了後、従来のPalette Converter Ver 2.X系を撤去したいと考えています。</li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">画面レイアウトを変更しました。
+                            <ul class="subcontent">
+                                <li>キャラクターシート倉庫のURL入力欄、チャットパレット出力のボタン等が画面上部の固定メニューに移りました。</li>
+                                <li>「チャットパレット出力」のボタンを押すと、その結果が表示されるセクションに近いところまで自動でスクロールするようになりました。</li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">読み込んだキャラクターシート倉庫のデータを、一時的に保持するようになりました。
+                            <ul class="subcontent">
+                                <li>この機能が適用されている間、画面上部に<span class="w3-border w3-light-grey" style="padding: 0.25em 0.5em; margin: 0 0.5em;">読み込み中：●●</span>というキャラクターシートの名前が表示されます。</li>
+                                <li>オプションを変更して出力し直す場合などは、一時的に保持したデータから読み込みを行います。</li>
+                                <li>保持されているデータを破棄するためには、<span class="w3-border w3-black" style="padding: 0.25em 0.5em; margin: 0 0.5em;">読み込み中データの破棄</span>ボタンを押すか、「キャラクターシート倉庫URL」の欄を変更してください。キャラクターシートのほうを更新して出力を行う場合は、この操作が必要です。</li>
+                                <li>また、後から使用ツールを変更して駒データを出力することを考慮し、現時点ではすべてのデータを読み込み・処理を行っています。そのため、ver 2.X系列より読み込みに少々時間がかかります。</li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">アーツの判定値欄、武器の命中欄からも判定式を抽出する機能を追加しました。
+                            <ul class="subcontent">
+                                <li>「すでに全く同じ判定式が存在する」場合、省略する設定がデフォルトになっています。すべて出力したい時は、オプション項目を「重複は省略」から「すべて追加」に変更してください。</li>
+                                <li>武器の命中欄は、「1」など符号のない整数で記載がされている場合、それを「基準値」として扱うか「プラス修正」として扱うかはオプション項目で選ぶ形となります。（デフォルトは「基準値」）</li>
+                                <li>また、「修正値を可能な限り加減算してまとめる」か、「そのまま書き下すか」をオプションで選ぶことができます。</li>
+                                <li>詳細は別途解説を書くと思います。</li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">「各【能力値】判定への個別の修正」欄の処理が更新されました。
+                            <ul class="subcontent">
+                                <li>プラス修正を指定する場合、符号をつける必要がなくなりました。また、最初から完全に数値で入力してもらう形になります。</li>
+                                <li>「堕落判定」への修正欄が追加されました。ステータスに「絆数」を紐付けるオプションが有効な場合のみ表示されます。</li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">アーツ宣言文出力の処理が変更されました。
+                            <ul class="subcontent">
+                                <li>まとめて式展開していたver2.x時代から処理を改め、「タイミング」が空欄のアーツについては、タイミング関係の表記処理を行わないように調整しました。</li>
+                                <li>アーツのLV出力がオプション選択式になりました。「すべて表示する」「LV1の表記のみ省略」「すべて省略する」から選ぶことができます。</li>
+                                <li>「コスト」欄の出力仕様を変更・追加しました。
+                                    <ul>
+                                        <li>メインプレイ中にコスト消費を考慮する必要のない「タイミング：常時」のアーツは、コスト表示が省略されます。</li>
+                                        <li><strong class="w3-text-red">「ルーツ：モータル」の、【FP】による代替コスト表示に対応しました。</strong>もしあなたが《記憶封印》されていないモータルならば、コスト欄の値から自動計算を行い、コスト表示が<strong class="w3-pale-blue w3-text-indigo" style="padding:0.25em 0;">【FP】x点 </strong>というふうに表示されるようになりました。</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">武器のダメージロール出力について、一部仕様を変更しました。
+                            <ul class="subcontent">
+                                <li>ダメージの属性とダメージの基準能力値が同じ場合に、攻撃力欄を「+1D6」のように符号から書き始めるケースがあると思いますが、そのパターンにおいて、今までは【能力値】の実数を挿入していたところを、属性名を {肉体} などの形で挿入するようにしました。</li>
+                                <li>( )内の値をすべて魔獣化中のみ参照する値としていましたが、これを数字ではなく文字列にも適用するようにしました。使うかどうかは別として、{肉体}({技術})+1D6 のような書き方もできるようになっています。</li>
+                                <li>「解説」セクションの中に試しに入力できる欄があるので、そちらでも試せます。</li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">「大罪」を持つキャラクターかどうかを、パレットコンバーター側のフォーム入力から、キャラクターシートのデータを確認して判定する仕様に変更しました。
+                            <ul class="subcontent">
+                                <li>以下のいずれかの条件を満たすキャラクターを、「大罪」取得者として扱います。<strong class="w3-text-red">「大罪」取得者は、キャラクター駒出力において「大罪」が「罪」とは別のリソースとして出力されます。</strong>
+                                    <ul class="w3-pale-green w3-round w3-border w3-border-teal" style="padding-top: 0.1em; padding-bottom:0.1em; margin-top: 0.25em; margin-bottom: 0.25em;">
+                                        <li>絆/エゴ表の「種類」欄に、「大罪」の文字を含むものがある</li>
+                                        <li>取得アーツの中に、「種別」欄に「大罪」の文字を含んでいるものがある</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">ユドナリウムの駒出力において、以下の仕様変更を行いました。
+                            <ul class="subcontent">
+                                <li>一部の文字を文字実体参照に変換するようにしました。<strong class="w3-pale-red w3-text-red" style="padding:0 0.25em;">&lt;</strong>と<strong class="w3-pale-red w3-text-red" style="padding:0 0.25em;">&gt;</strong>と<strong class="w3-pale-red w3-text-red" style="padding:0 0.25em;">&quot;</strong>と<strong class="w3-pale-red w3-text-red" style="padding:0 0.25em;">&apos;</strong>と<strong class="w3-pale-red w3-text-red" style="padding:0 0.25em;">&amp;</strong>、お前のことだぞ。（前2つは一応ver2.X系でも対策はしていましたが、今回徹底することにしました）</li>
+                                <li>《魔獣化》中の能力値の参照を、チャットパレット側に<strong class="w3-pale-blue w3-text-indigo" style="padding:0.25em 0.5em;">//魔白={肉体}+2</strong>のような形で移行しています。</li>
+                                <li>今まで「魔行」という名前で出力していた《魔獣化》中の【行動値】実数値は、一旦<strong class="w3-pale-blue w3-text-indigo" style="padding:0.25em 0;">「魔動」</strong>という名前に変更しています。（出力するかどうかはオプション項目として任意になりました。）</li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">「ユドナリウムリリィ」を、「ユドナリウム」とは別のオンラインセッションツールとして個別の処理を行うようになりました。
+                            <ul class="subcontent">
+                                <li>アーツのコスト出力が他ツールと異なり、<strong class="w3-text-red">「リソース操作コマンド」の形式で記入されます。これによって、アーツの宣言と同時に対応するコストすべてを支払います。</strong>これを適用しない場合、使用ツールを「ユドナリウム」として出力してください。</li>
+                                <li>キャラクター駒出力の際に、バフパレットの設定が「ユドナリウムリリィ」を使用ツールに設定している場合のみ現れるようになりました。
+                                    <ul>
+                                        <li>もしアーツのコスト自動支払い機能を使いたくないがバフパレットは使用したい場合、チャットパレットを「ユドナリウム」で出力後、使用ツールを「ユドナリウムリリィ」に切り替えてください。</li>
+                                        <li>なお、バフパレット自体は<strong class="w3-pale-blue w3-text-indigo" style="padding:0.25em 0;">「放心などラウンド持続のバフ・デバフに【効果時間0R】を設定し、ラウンド終了時には【0R以下消去】の操作のみ行う」</strong>ことを想定した仕様にしています。<br>
+                                            ユドナリウムリリィの実装がソードワールド系に最適化されており、「効果時間∞」の設定ができないためです。
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">ココフォリアの駒出力機能を、Ver 2.X系列で実装していたzipファイルでの出力から、公式に提供された「Clipboard API」による出力に変更しました。
+                            <ul class="subcontent">
+                                <li>出力されたテキストをコピーし、ココフォリアのルーム上で「貼り付け」処理を行ってください。</li>
+                                <li>Vivaldi等一部のブラウザで、コピーしたテキストがココフォリアに貼り付けられないことがあるようですが、それについてはサポート外とさせていただきます。</li>
+                                <li>これに伴い、ココフォリアの駒出力では、画像ファイルが紐づかない形になりました。ココフォリアに駒を貼り付けた後、向こうで操作を行ってください。</li>
+                                <li class="w3-text-pink">
+                                    ※R3/8/18追記
+                                    <ul>
+                                        <li>ココフォリア v1.20.0アップデートにより、スマートフォンのロングタップでも「貼り付け」の動作ができるよう修正されました。</li>
+                                        <li>スマートフォン単体でも、当コンバーターを経由して、各部屋に駒データを出力することができます。</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="subtitle">ユドナリウム／ココフォリアのキャラクター駒出力にあたって、その前にリソースの確認・編集・消去などを行える専用のインターフェースを追加しました。
+                            <ul class="subcontent">
+                                <li>これに伴い、堕落判定を支援するため新たに<strong class="w3-pale-blue w3-text-indigo" style="padding:0.25em 0;">「絆数」</strong>のリソースと、その判定行が自動追加されるようになりました。</li>
+                                <li>また、ver 2.X系にはあった<strong class="w3-text-red">「初期財産点の編集」がこちらに統合されています</strong>。「財産点」のリソース現在値を書き換えてください。</li>
+                                <li>ココフォリアの駒出力機能では、チャット画面におけるキャラクターのネームカラー初期値を設定する機能が追加されています。（Enemy Editor 2と同等の機能）</li>
+                                <li>ココフォリアでは、「大罪」を持つかどうかで、愛・絆数・罪・大罪の最大値が変化します。「盤面キャラクター一覧」における最大値の表示が不要であれば、最大値を「0」にしてください。</li>
+                                <li>特にココフォリアのリソース編集画面では、「ステータス」と「パラメータ」の相互変換が行えます。
+                                    <ul>
+                                        <li>【FP】や人間性など「よく操作するデータ」がステータス、【能力値】などのあまり操作しないデータはパラメータに振り分けています。<br>
+                                            もし《罪の悦楽》等で【能力値】もよく操作する場合、パラメータをステータスに「変換」することで、ココフォリアのリソース操作コマンド<strong class="w3-pale-blue w3-text-indigo" style="padding:0.25em 0.5em;">:感情+1</strong>に対応できるようになります。</li>
+                                        <li>ただし、「文字列」のパラメータは、ステータスへの変換はできません。数字から始まる場合は変換できますが、符号を含む文字列の部分以降はすべて切り捨てられるため、それらを変換する場合は正常に変換されないことを前提としてください。</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-blue"><span class="w3-blue w3-tag w3-round-large" style="margin:0.25em;">ver 2.3.0</span> 《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2021/4/26</p>
+            <ul class="patchlist">
+                <li>判定構文の出力順を「能力値別か」「《魔獣化》中かどうか」で調整できるように機能追加。『基本的な出力のオプション』から設定できます。</li>
+                <li>駒コンバーターの機能を拡張。
+                    <ul>
+                        <li><strong class="w3-text-red">絆・エゴ情報の出力形式を変更。</strong>チェックを入れない場合、全く出力されなくなります。</li>
+                        <li>ルーツに「呪われし者」が含まれている場合、「反動」のステータスを作成する機能を追加。現行のキャラクターシート倉庫に準じた検索を行なっているため、サプリ第4弾が発刊した場合は要修正。</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-blue"><span class="w3-blue w3-tag w3-round-large" style="margin:0.25em;">ver 2.2.2</span> 《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2021/2/26</p>
+            <ul class="patchlist">
+                <li style="font-weight:bold">ココフォリア用の機能として、キャラクター駒変換器機能を追加。
+                    <ul>
+                        <li style="font-weight:bold;" class="w3-text-red">
+                            本機能は「部屋のエクスポート機能」によって作成されるファイルを参考に、ある程度の逆算を行って作成した機能です。<br>
+                            今後のココフォリアの更新や、提示する方針によっては、本機能を取り下げる場合がありますのでご了承ください。
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-blue"><span class="w3-blue w3-tag w3-round-large" style="margin:0.25em;">ver 2.2.1</span> 《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2021/2/25</p>
+            <ul class="patchlist">
+                <li style="font-weight:bold">バフパレット周りの追加更新で、通常のユドナリウムを想定したコマが変換出来なくなっていたどう考えてもケアレスなミスを修正。申し訳ありませんでした…</li>
+                <li style="font-weight:bold">今後、他のオンセツール用の駒を作成することを踏まえ、ユドナリウム専用に当て書きしていたソースコードをある程度切り分け。</li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-blue"><span class="w3-blue w3-tag w3-round-large" style="margin:0.25em;">ver 2.2.0</span> 《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2021/2/18</p>
+            <ul class="patchlist">
+                <li style="font-weight:bold">ユドナリウムの駒コンバーターに、ユドナリウムリリィの「バフパレット」を組み込めるよう機能を追加しました。
+                    <ul>
+                        <li>今後、追加される独自の機能によっては、「ユドナリウムリリィ」の出力項目を独立させる可能性があります。</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-blue"><span class="w3-blue w3-tag w3-round-large" style="margin:0.25em;">ver 2.1.4</span> 《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2021/2/10</p>
+            <ul class="patchlist">
+                <li style="font-weight:bold">空欄処理が適正でなかった不具合を修正。</li>
+                <li style="font-weight:bold">文字列出力の際の処理順を少し変更。</li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-blue"><span class="w3-blue w3-tag w3-round-large" style="margin:0.25em;">ver 2.1.3</span> 《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2021/2/8</p>
+            <ul class="patchlist">
+                <li style="font-weight:bold">ユドナリウム駒コンバーターで駒を出力する時、キャラクター名／絆・エゴ情報／チャットパレット内の半角不等号を山括弧に変換して出力するように変更しました。
+                    <ul>
+                        <li>ユドナリウムはXMLファイルのデータを駒データとして解釈しますが、半角不等号を使ってデータの内容を区切っています。</li>
+                        <li>半角不等号が文中に混じるとデータの読み込みが途中で終わってしまい、エラーが発生します。それを回避するため、今回の仕様変更を行いました。</li>
+                    </ul>
+                </li>
+                <li style="font-weight:bold">アーツ・アイテム出力オプション『「タイミング」が空欄のアーツ・アイテムを出力テキストに含める』項目について、初期状態でチェックが入るように変更しました。</li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-blue"><span class="w3-blue w3-tag w3-round-large" style="margin:0.25em;">ver 2.1.2</span> 《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2020/12/4</p>
+            <ul class="patchlist">
+                <li style="font-weight:bold">ユドナリウム駒コンバーターの機能追加の際に、他のツールを選択したときにURLが正しく参照されなくなっていた不具合を修正。<strong class="w3-text-red">大変申し訳ありませんでした…</strong></li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-blue"><span class="w3-blue w3-tag w3-round-large" style="margin:0.25em;">ver 2.1.1</span> 《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2020/11/25</p>
+            <ul class="patchlist">
+                <li style="font-weight:bold">【能力値】や【FP】、人間性などの数値データが取得できなかった場合、デフォルトの仮値が入力されるように変更しました。
+                    <ul>
+                        <li>デフォルト値は人間性が60、それ以外のパラメータは0となります。</li>
+                        <li>ルーツの手動入力などで数値以外のデータを入力した場合、キャラクターシートの当該データが空欄になってしまうことへの対策となります。</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-blue"><span class="w3-blue w3-tag w3-round-large" style="margin:0.25em;">ver 2.1.0</span> 《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2020/11/6</p>
+            <ul class="patchlist">
+                <li class="w3-text-red" style="font-weight:bold">「ユドナリウム」の駒作成機能を、Palette Converter内に組み込みました。</li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-blue"><span class="w3-blue w3-tag w3-round-large" style="margin:0.25em;">ver 2.0.0</span> 《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2020/9/25</p>
+            <ul class="patchlist">
+                <li class="w3-text-red">Google Chromeを動作環境の基準としました。</li>
+                <li>メジャーバージョンアップに伴い、以下の機能が追加されます。
+                    <ul>
+                        <li>「オンラインセッションツール」を選択し、そのツールに合わせたテキストを出力する機能が追加されます。ver 1.X時代の「予約語の扱いに関するオプション」を整理したものです。</li>
+                    </ul>
+                </li>
+                <li>メジャーバージョンアップに伴い、以下の挙動が変更されます。
+                    <ul>
+                        <li>ver 1.2.1で追加した文字列の空白文字削除について、適用範囲を調整しました。</li>
+                        <li>ダメージロール式の出力の際、特定の書き方でない場合に〔判別失敗〕と出力する仕様を大幅に変更。
+                            <ul>
+                                <li>可能な限りキャラクターシートの記載に近い形で出力をするように変更しました。</li>
+                                <li>もしダメージロール式が「+」で始まる（能力値対応が属性欄でまかなわれている）場合、出力にあたって対応する【基本能力値】の値を挿入します。</li>
+                                <li>ダメージロール式が属性の名前で始まる場合、その部分を対応する【基本能力値】の値に置換します。</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>メジャーバージョンアップに伴い、以下の機能が削除されます。
+                    <ul>
+                        <li>ガード値の欄に複数の数字を書くことで、その全てをガード値の候補として出力する機能が削除されます。</li>
+                        <li>一旦、ユドナリウム駒変換器に直接データを送信する機能が凍結されます。手動でコピーすれば使用は可能です。</li>
+                        <li>BCDiceのバージョンが更新されていない「ねこ卓」を、対応オンセツールの例示から外しました。</li>
+                        <li>一旦、一般装備欄のアイテムからダメージロール式を出力する機能が凍結されます。</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-teal"><span class="w3-teal w3-tag w3-round-large" style="margin:0.25em;">ver 1.2.1</span> 《<ruby>転換<rt>へんげんじざい</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2020/2/18</p>
+            <ul class="patchlist">
+                <li>ダメージロール式のマッチングや、意図しない改行出力を防止するため、以下の仕様を追加しました。
+                    <ul>
+                        <li>アーツ名や効果、ダメージロール式を変換する前に、空白文字および改行を削除します。</li>
+                        <li>アーツ名や効果、ダメージロール式を変換する前に、全角のアルファベットや一部の算術記号を半角に変換します。</li>
+                    </ul>
+                </li>
+                <li>オンラインセッションツールの例示を更新しました。</li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-teal"><span class="w3-teal w3-tag w3-round-large" style="margin:0.25em;">ver 1.2.0</span> 《<ruby>転換<rt>へんげんじざい</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2019/3/11</p>
+            <ul class="patchlist">
+                <li>「ユドナリウム駒変換器」と連携するオプションを追加しました。
+                    <ul>
+                        <li>なお、この機能はver 2.0.0現在では凍結されています。</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-teal"><span class="w3-teal w3-tag w3-round-large" style="margin:0.25em;">ver 1.1.1</span> 《<ruby>転換<rt>へんげんじざい</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2019/3/10</p>
+            <ul class="patchlist">
+                <li>ダメージロール式の出力にあたって、想定しないパターンの記載だった場合の出力表記を調整しました。</li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-teal"><span class="w3-teal w3-tag w3-round-large" style="margin:0.25em;">ver 1.1.0</span> 《<ruby>転換<rt>へんげんじざい</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2019/3/7</p>
+            <ul class="patchlist">
+                <li>「予約語の扱いに関するオプション」が新設されます。
+                    <ul>
+                        <li>オンラインセッションツールごとに異なる、チャットパレット上の【能力値】表記を調整するためのオプションです。</li>
+                        <li>ver 2.0.0以降は、「使用するオンラインセッションツールの選択」に変更されています。</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-teal"><span class="w3-teal w3-tag w3-round-large" style="margin:0.25em;">ver 1.0.0</span> 《<ruby>変換<rt>ならべたてるもの</rt></ruby> -Palette Converter-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2019/3/7</p>
+            <ul class="patchlist">
+                <li class="w3-text-red">正式リリース。</li>
+                <li>ガード値の出力方法が調整されます。
+                    <ul>
+                        <li>ver 2.0.0以降はこの調整が廃止されます。</li>
+                    </ul>
+                </li>
+                <li>ダメージロール式の出力について、以下の機能が追加されます。
+                    <ul>
+                        <li>アーツ効果文中の [ ] で囲まれた式も出力できるようになります。</li>
+                        <li>武器・乗り物の備考欄を出力するオプションが追加されます。</li>
+                        <li>ダメージロール式で対応する書式が追加されます。</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-amber"><span class="w3-amber w3-tag w3-round-large" style="margin:0.25em;">ver 0.3.0</span> 《<ruby>変景<rt>すりかわるけしき</rt></ruby> -Vision Deprived-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2019/1/20</p>
+            <ul class="patchlist">
+                <li>「基本的なリアクション」として、「ドッジ」の宣言と装備武器によるガード（ガード値表示）も出力できるようになります。</li>
+                <li>ダメージロール式のチェックの際に、空白文字を削除してからチェックを行うようになります。</li>
+                <li>オプションの表示順の調整を行いました。</li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-amber"><span class="w3-amber w3-tag w3-round-large" style="margin:0.25em;">ver 0.2.0</span> 《<ruby>総撃<rt>そにしてもらさず</rt></ruby> -Brute Force-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2019/1/14</p>
+            <ul class="patchlist">
+                <li>IE11を基本動作の基準にしました。</li>
+                <li>ダメージロール式の出力機能が追加されます。ただし、定型文に沿うかたちのものしか《魔獣化》中の切り分けを行いません。</li>
+                <li>判定修正値表にリセットボタンが追加されます。</li>
+            </ul>
+        </div>
+
+        <h3 class="w3-border-bottom w3-border-amber"><span class="w3-amber w3-tag w3-round-large" style="margin:0.25em;">ver 0.1.0</span> 《<ruby>公開<rt>ならべたてるもの</rt></ruby> -Proto Conversion-》 </h3>
+        <div class="w3-container w3-small" style="margin: 1em 2em;">
+            <p style="font-weight: bold;">更新：2019/1/10</p>
+            <ul class="patchlist">
+                <li>プロトタイプ版を公開しました。</li>
+            </ul>
+        </div>
+    </div>
+
+</body>
+
+<!-- Font Awesome -->
+<script src="https://kit.fontawesome.com/2a572495d4.js" crossorigin="anonymous"></script>
+
+</html>
