@@ -3,9 +3,20 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<!-- OGPタグの設定 -->
+  		<meta property="og:url" content="http://niltheria.daynight.jp/bbt/tools/index.html" />
+		<meta property="og:title" content="BBT セッション準備支援ツール" />
+		<meta property="og:description" content="「ビーストバインドトリニティ」用の、主にオンラインセッションの準備を簡略化するためのwebツール集。" />
+		<meta property="og:image" content="http://niltheria.daynight.jp/sitelogo_summary.png" />
+		<meta property="og:type" content="article" />
+		<meta property="og:site_name" content="NiLtheria" />
+		<meta property="og:locale" content="ja_JP" />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:site" content="@u_krasaka" />
+    <!-- ここまで -->
 
     <!-- HTML タイトル -->
-    <title>BBT チャットパレットコンバーター V3</title>
+    <title>《変換 -Palette Converter-》V3 ~ BBT チャットパレットコンバーター</title>
 
     <!-- CSSの設定 -->
     <link href="css/w3.css" rel="stylesheet" type="text/css">
@@ -15,8 +26,8 @@
 
 <body>
     <!-- タイトルスライド -->
-    <div class="w3-container w3-indigo">
-        <h2 class="w3-text-white">《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 V3: Trial version</h2>
+    <div class="w3-container w3-indigo w3-hide-small w3-hide-medium">
+        <h2 class="w3-text-white">《<ruby>変換<rt>くみかえるもの</rt></ruby> -Palette Converter-》 V3</h2>
         <p class="w3-small w3-text-white">
             《変換 -Palette Converter-》は、<a href="https://character-sheets.appspot.com/" target="_blank" class="w3-hover-blue">キャラクターシート倉庫</a>に保存されたBBTのキャラクターシートから、各種オンラインセッションツールで使用するチャットパレットを生成する準備支援ツールです。
         </p>
@@ -89,7 +100,7 @@
                                 </td>
                             </tr>
                             <tr style="vertical-align:middle;">
-                                <td colspan="2">
+                                <td colspan="2" style="padding: 1em;">
                                     <button class="w3-btn w3-indigo w3-hover-blue w3-round" @click="process_button()" style="width:100%;">
                                         <span v-show="!main_data_name">
                                             <i class="fas fa-dice-d6"></i>
@@ -107,11 +118,16 @@
                                 <td>{{main_data_name}}</td>
                             </tr>
                             <tr v-show="main_data_name" style="vertical-align:middle;">
-                                <td colspan="2">
+                                <td colspan="2" style="padding: 1em;">
                                     <button class="w3-btn w3-black w3-hover-dark-grey w3-round" @click="revoke_data()" style="width:100%;">
                                         <i class="fas fa-power-off" style="margin-right:0.5em;"></i>
                                         読み込み中データの破棄
                                     </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="w3-small w3-border w3-round-large" style="padding: 1em;">
+                                    《変換 -Palette Converter-》は、<a href="https://character-sheets.appspot.com/" target="_blank" class="w3-hover-blue">キャラクターシート倉庫</a>に保存されたBBTのキャラクターシートから、各種オンラインセッションツールで使用するチャットパレットを生成する準備支援ツールです。
                                 </td>
                             </tr>
                         </table>
@@ -453,8 +469,8 @@
                     <strong class="w3-text-red">《魔剣の使い手》《幻想存在》《ダメ人間》《ダメ半魔》などの常時判定修正がかかるアーツ、ファンブル値が変化する常時アーツ</strong><br>
                     <span class="w3-text-red">※命中判定、ドッジの判定や、特定のアーツを使用するときのみにかかる修正は、出力後にテキストをコピペして調整してください。</span>
                 </p>
-                <div class="w3-container" id="sec_mods" style="display: flex;" v-show="show.sec_mods">
-                    <div>
+                <div class="w3-container" id="sec_mods" style="display: flex; flex-wrap: wrap;" v-show="show.sec_mods">
+                    <div class="w3-container">
                         <table class="w3-border w3-striped table-padding w3-border-black">
                             <tr>
                                 <th>【能力値】</th>
@@ -1253,7 +1269,7 @@
                 <tr :class="{'w3-pale-red': evalRequiredComment}">
                     <td>詳細</td>
                     <td>
-                        <textarea cols="50" rows="6" v-model="comment" style="display: block;" :required="evalRequiredComment"
+                        <textarea cols="40" rows="6" v-model="comment" style="display: block;" :required="evalRequiredComment"
                             placeholder="「こう変換されてほしい」等の意図や、ツールに関する要望等は、この欄に記載してください。「変換失敗」以外を選んだ場合、本項目は必須入力となります。">
                         </textarea>
                     </td>
@@ -1271,26 +1287,13 @@
         <p class="w3-small">
             過去の更新履歴は <A href="patchnotes.html" target="_blank">Patchnotes</A> でご確認ください。
         </p>
-        <ul class="w3-small">
-            <li><b>2021/8/4：V3 体験版 0.0.2</b>
-                <ul>
-                    <li>ココフォリア駒作成、ユドナリウム駒作成の機能まで実装し、V2でできたことのほとんどは実行可能に。</li>
-                    <li>「チャットパレット作成と同時に即駒データ作成」の機能はオプションとして残していますが、<strong class="w3-text-red">チャットパレットをしっかり確認してから駒データを保存することを強く推奨します。</strong></li>
-                </ul>
-            </li>
-            <li><b>2021/7/30：V3 体験版 0.0.1</b>
-                <ul>
-                    <li>判定値式の部分だけをチェックできる体験版です。</li>
-                </ul>
-            </li>
-        </ul>
     </div>
 
     <!-- 10: ソースコード -->
     <div class="w3-container" style="margin-bottom: 2em;">
         <p class="w3-border-bottom w3-leftbar w3-border-indigo" style="font-weight:bold; padding-left:0.5em;">ソースコード</p>
         <p class="w3-small">
-            Githubにて公開予定です。
+            <a href="https://github.com/ukrasick/BBT-Palette-Converter-3.x" target="_blank">Githubにてソースコードを公開しました。</a>
         </p>
     </div>
 

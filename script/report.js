@@ -80,7 +80,7 @@ async function sendRequest() {
         headers: new Headers(),
         body: formdata
     };
-    let url = "<Discord Webhook Token>";
+    let url = "https://discord.com/api/webhooks/878901815352123412/X2g7G-piFINAXUu8hFH6d2Xd2zS7xjD_0XqQGLHU3erGM9iA76L0awO1eQ5MaCIliRXE";
     const response = await fetch(url, check).then(alert("投稿を行いました。"));
 }
 
