@@ -374,8 +374,8 @@ const App_options = Vue.createApp({
         }
     },
     computed: {
-        palette_disp() {
-            return palette.length > 0 ? true : false;
+        palette_hasError() {
+            return this.palette.indexOf("**Error: 式作成に失敗しました**") > 0 ? true : false;
         },
         general_sort_type_description() {
             switch(this.general.sort_type) {

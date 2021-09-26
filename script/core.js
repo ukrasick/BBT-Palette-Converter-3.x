@@ -493,9 +493,26 @@ function outputAllJudgeTextsV3(data) {
         let check = checkJudgeTextAddType(r.type);
         // アーツ／武器かつ「追加しない」オプションの場合はスキップ
         if(r.type !== "general" && check === "追加しない") { continue; }
-        // 人間状態の判定式と、《魔獣化》中の判定式を両方作成
-        let str_h = makeJudgeTextV3(r.str, getAblParams(data), "h", r.type, r.obj);
-        let str_b = makeJudgeTextV3(r.str, getAblParams(data), "b", r.type, r.obj);
+        // 人間状態の判定式を作成
+        // try-catch でエラーが起きた場合の中断を回避し、エラーメッセージになるよう変換する
+        let str_h;
+        try {
+            str_h = makeJudgeTextV3(r.str, getAblParams(data), "h", r.type, r.obj);
+        }
+        catch(e) {
+            console.log(e.message);
+            str_h = {text: "**Error: 式作成に失敗しました** ", note: `${r.obj.name} 判定`};
+        }
+        // 《魔獣化》中の判定式を作成
+        // try-catch でエラーが起きた場合の中断を回避し、エラーメッセージになるよう変換する
+        let str_b;
+        try {
+            str_b = makeJudgeTextV3(r.str, getAblParams(data), "b", r.type, r.obj);
+        }
+        catch(e) {
+            console.log(e.message);
+            str_b = {text: "**Error: 式作成に失敗しました** ", note: `${r.obj.name} 判定（《魔獣化》中）`};
+        }
         // 人間／魔獣の式に差がない場合、魔獣化中の式は追加しないようにする
         if(str_b.text === str_h.text) { str_b.text = ""; }
         // アーツ／武器かつ「重複は省略」の場合、すでに同等の式が存在する場合は省略する
