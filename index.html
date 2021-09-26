@@ -740,12 +740,15 @@
                     </button>
                     チャットパレットデータ
                 </p>
-                <div style="margin:1em;">
+                <div style="margin-top:1em;">
                     <button class="clipbtn w3-round w3-indigo w3-hover-blue" style="font-weight:bold;" data-clipboard-target="#palette-converter-result">
                         チャットパレットデータをコピー
                     </button>
                 </div>
                 <div class="w3-container" v-show="show.sec_palette">
+                    <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-small w3-padding-8" style="font-weight:bold;" v-if="palette_hasError">
+                        チャットパレット作成時に、正常に作成できなかった判定式があります。チャットパレットの内容を確認してください。
+                    </div>
                     <textarea rows="15" id="palette-converter-result" class="w3-small" v-model="palette" placeholder="作成されたチャットパレットデータはここに表示されます。" style="width:100%;">
                     </textarea>
                 </div>
