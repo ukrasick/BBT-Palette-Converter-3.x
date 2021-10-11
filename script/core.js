@@ -27,30 +27,44 @@ function convert(data, cache=false) {
 
     // テキストの作成開始
     let result = [];
-    // 登場時の人間性低下
-    let sceneEntry = outputSceneEntry();
-    if(sceneEntry) { result.push(sceneEntry, ""); }
-    // 判定文を作成
-    let judgeTexts = outputAllJudgeTextsV3(data);
-    if(judgeTexts) { result.push(judgeTexts, ""); }
-    // ジェネラルアクション
-    let generalActions = outputGeneralActions(data);
-    if(generalActions && appo.general.output_general) { result.push(generalActions, ""); }
-    // アーツ
-    let arts = outputArts(data);
-    if(arts && appo.general.output_arts) { result.push(arts, ""); }
-    // アイテム
-    let items = outputItems(data);
-    if(items && appo.general.output_items) { result.push(items, ""); }
-    // リアクション
-    let reaction = outputGeneralReactions(data);
-    if(reaction && appo.general.output_reaction) { result.push(reaction, ""); }
-    // ダメージロール
-    let damageRolls = outputDamageRoll(data);
-    if(damageRolls && appo.general.output_damage) { result.push(damageRolls, ""); }
-    // 予約語一覧の出力（システムによって処理が異なる）
-    let reservedValues = outputReservedValues(data);
-    if(reservedValues) { result.push(reservedValues, ""); }
+    // 「出力する項目と順番」の設定にあわせて、順々にテキストを作成・追加
+    for(let title of appo.advanced_order.order) {
+        if(!appo.advanced_order.usable[title]) { continue; }
+        let output;
+        switch(title) {
+            case "登場":
+                output = outputSceneEntry();
+                break;
+            case "一般的な判定":
+                output = outputAllJudgeTextsV3(data);
+                break;
+            case "一般的な行動":
+                output = outputGeneralActions(data);
+                break;
+            case "アーツ":
+                output = outputArts(data);
+                break;
+            case "アイテム":
+                output = outputItems(data);
+                break;
+            case "リアクション":
+                output = outputGeneralReactions(data);
+                break;
+            case "愛・罪の効果":
+                output = outputAgapeyAndGuilty();
+                break;
+            case "ダメージロール":
+                output = outputDamageRoll(data);
+                break;
+            case "能力値一覧":
+                output = outputReservedValues(data);
+                break;
+            case "リソース操作":
+                output = outputResourceOperator(data);
+                break;
+        }
+        if(output) { result.push(output); }
+    }
     // データの結合
     let resultText = result.join("\n");
     // 予約語に対応しないシステムは、予約語の部分を実数値に置き換える
@@ -215,6 +229,38 @@ function getCharacterKinds(data) {
     }
     data.allKinds = result;
     return data.allKinds;
+}
+
+// エラーが生じた場合にそれをpalette_errorに挿入する
+function alertFormulaMakingErrors(obj, mode=null) {
+    let s = "";
+    if(obj) {
+        s += ("cost" in obj ? `《${obj.name}》` : `「${obj.name}」`) + (mode ? mode : "");
+    } else {
+        s += "（作成エラー）" + (mode ? mode : "");
+    }
+    if(!appo.palette_error.includes(s)) { appo.palette_error.push(s); }
+    console.log("エラーログ挿入: " + s);
+}
+
+// オンラインセッションツールに応じたセクションヘッダー／フッターの作成
+// subhead: 見出し文, array: チャットパレット作成結果が格納された配列
+function addSubHeadersAndFooterByTool(subhead, array = []) {
+    switch(appmp.system_selected) {
+        case "ユドナリウムリリィ":
+            array.unshift(`//---${subhead}`);
+            array.push("");
+            break;
+        case "Tekey":
+            array.unshift(`###${subhead}`);
+            array.push("###");
+            break;
+        default:
+            array.unshift(`■${subhead} ` + "-".repeat(10));
+            array.push("");
+            break;
+    }
+    return array;
 }
 
 // keyから能力値名を日英相互変換  key: オブジェクトのkey  lang:変換後の言語 j/日本語 e/英語
@@ -439,6 +485,7 @@ function outputSceneEntry() {
         "1D6KH1 シーン登場時の人間性低下",
         "2D6KH1 【迫害状態】シーン登場時の人間性低下"
     ].map(str => (appo.general.session_tool === "ユドナリウムリリィ" ? ":人間性-" : "") + str);
+    result = addSubHeadersAndFooterByTool("シーン登場時の処理", result);
     return result.join("\n");
 }
 
@@ -502,6 +549,7 @@ function outputAllJudgeTextsV3(data) {
         catch(e) {
             console.log(e.message);
             str_h = {text: "**Error: 式作成に失敗しました** ", note: `${r.obj.name} 判定`};
+            alertFormulaMakingErrors(r.obj, "判定");
         }
         // 《魔獣化》中の判定式を作成
         // try-catch でエラーが起きた場合の中断を回避し、エラーメッセージになるよう変換する
@@ -512,6 +560,7 @@ function outputAllJudgeTextsV3(data) {
         catch(e) {
             console.log(e.message);
             str_b = {text: "**Error: 式作成に失敗しました** ", note: `${r.obj.name} 判定（《魔獣化》中）`};
+            alertFormulaMakingErrors(r.obj, "判定");
         }
         // 人間／魔獣の式に差がない場合、魔獣化中の式は追加しないようにする
         if(str_b.text === str_h.text) { str_b.text = ""; }
@@ -538,8 +587,8 @@ function outputAllJudgeTextsV3(data) {
     if(text_pool_beast.length > 1) {
         text_pool_beast.unshift('----------');
     }
-    text_pool.unshift("◆一般的な判定 ----------");
-    return text_pool.concat(text_pool_beast).join("\n");
+    text_pool = addSubHeadersAndFooterByTool("一般的な判定", text_pool.concat(text_pool_beast));
+    return text_pool.join("\n");
 }
 
 // 追加モードの判定
@@ -695,10 +744,9 @@ function makeJudgeTextV3(text, params, mode="h", type="general", obj=null) {
 
 // 一般的な行動のテキストを作成
 function outputGeneralActions(data) {
-    if(!appo.general.output_general) { return ""; }
+    if(!appo.advanced_order.usable["一般的な行動"]) { return ""; }
     // 基本テキストの出力
     let result = [
-        "◆一般的な行動 ----------",
         "※アクションなし",
         "ムーブ - 通常移動",
         "メジャー - 離脱移動"
@@ -712,19 +760,22 @@ function outputGeneralActions(data) {
         if(i.type.match(/乗/) && declare.length == 0) { declare.push(`メジャー - 「${i.name}」で${checkVehicleAttackType(i)}攻撃`.replace(/\r?\n/g, '')); }
         result = result.concat(declare);
     }
+    result = addSubHeadersAndFooterByTool("一般的な行動", result);
     return result.join("\n");
 }
 
 // アーツデータの出力
 function outputArts(data) {
     let result = makeActionsTextV3(data.arts);
-    return result.length > 1 ? ["◆アーツ一覧 ----------"].concat(result).join("\n") : "";
+    if(result.length > 0) { result = addSubHeadersAndFooterByTool("アーツ一覧", result); }
+    return result.join("\n");
 }
 
 // アイテムデータの出力
 function outputItems(data) {
     let result = makeActionsTextV3(data.items);
-    return result.length > 1 ? ["◆アイテム一覧 ----------"].concat(result).join("\n") : "";
+    if(result.length > 0) { result = addSubHeadersAndFooterByTool("アイテム一覧", result); }
+    return result.join("\n");
 }
 
 // アーツ・アイテムデータの宣言式作成
@@ -824,8 +875,9 @@ function makeObjectNameText(obj) {
 
 // リアクション宣言の作成
 function outputGeneralReactions(data) {
-    if(!appo.general.output_reaction) { return ""; }
-    let result = ["◆一般的なリアクション宣言 ----------", "リアクション不可/放棄", "リアクション - ドッジ"];
+    if(!appo.advanced_order.usable["リアクション"]) { return ""; }
+    // 基本的なデータを作成
+    let result = ["リアクション不可/放棄", "リアクション - ドッジ"];
     // 武器データからガード値データを取得
     for(let i of data.weapons) {
         if(!i || !i.name || !i.guard) { continue; }
@@ -847,6 +899,7 @@ function outputGeneralReactions(data) {
         if(str_h) { result.push(str_h); }
         if(str_b) { result.push(str_b); }
     }
+    result = addSubHeadersAndFooterByTool("一般的なリアクション宣言", result);
     return result.join("\n");
 }
 
@@ -899,7 +952,9 @@ function outputDamageRoll(data) {
         if(h.text) { result.push((`${h.text}${h.note}`).replace(/\r?\n/g, "")); }
         if(b.text) { result.push((`${b.text}${b.note}`).replace(/\r?\n/g, "")); }
     }
-    if(result.length > 0) { result.unshift("◆ダメージロール一覧 ----------"); }
+    if(result.length > 0) {
+        result = addSubHeadersAndFooterByTool("ダメージロール一覧", result);
+    }
     return result.join("\n");
 }
 
@@ -961,7 +1016,37 @@ function outputReservedValues(data) {
         }
     }
     // 記載される項目がひとつ以上ある場合、見出しを付ける
-    if(result.length > 0) { result.unshift("◆能力値関連 ----------"); }
+    if(result.length > 0) {
+        result = addSubHeadersAndFooterByTool("能力値関連", result);
+    }
+    return result.join("\n");
+}
+
+// 汎用リソース操作パレット（ココフォリア、ユドナリウムリリィ）
+function outputResourceOperator(data) {
+    // オンセツール限定の処理。該当しなければundefinedを返す
+    if(!["ココフォリア", "ユドナリウムリリィ"].includes(appmp.system_selected)) { return void(0); }
+    // 操作するリソースを取得
+    let resource = ["FP", "人間性", "財産点", "愛", "罪"];
+    if(hasGreatGuilty(data)) { resource.push("大罪"); }
+    if(appo.general.output_resistFalldown) { resource.push("絆数"); }
+    // リソース操作の文言に変換（現状、ココフォリアもユドナリウムも書式が同じ）
+    let result = resource.map(str => `:${str}`);
+    result = addSubHeadersAndFooterByTool("リソース操作パレット", result);
+    return result.join("\n");
+}
+
+// 愛・罪の効果パレット
+function outputAgapeyAndGuilty() {
+    let resource_agapey = [
+        "愛の効果「◆絆の修復」", "愛の効果「◆罪の効果を他者に適用」", "愛の効果「◆解放状態」"
+    ].map(str => str + (appmp.system_selected == "ユドナリウムリリィ" ? " :愛-1" : ""));
+    let resource_guilty = [
+        "罪の効果「◆達成値増大」", "罪の効果「◆ダメージ増強」", "罪の効果「◆移し替え無効」",
+        "罪の効果「◆回復」", "罪の効果「◆復活」", "罪の効果「◆真の死の回避」"
+    ].map(str => str + (appmp.system_selected == "ユドナリウムリリィ" ? " :罪-1" : ""));
+    let result = [].concat(resource_agapey, resource_guilty);
+    result = addSubHeadersAndFooterByTool("愛・罪の効果", result);
     return result.join("\n");
 }
 

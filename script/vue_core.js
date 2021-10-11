@@ -94,18 +94,13 @@ const App_options = Vue.createApp({
             show: {
                 sec_howtouse: true, sec_gen: true, sec_arts: false,
                 sec_damage: false, sec_mods: false, sec_explain: false,
-                sec_palette: true,
+                sec_palette: true, sec_order: true,
                 pone: { udona: true, ccfolia: true },
                 color_preset: ["#222222", "#F44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4", "#009688", "#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107", "#FF9800", "#FF5722", "#795548", "#607D8B", "#9E9E9E", "#E0E0E0"],
                 lilySelectedBS: "新規",
-                option_lilyBS: ["新規", "邪毒", "重圧", "狼狽", "放心", "束縛", "暴走", "翻弄", "恐怖", "迫害"],
+                option_lilyBS: ["新規", "邪毒", "重圧", "狼狽", "放心", "束縛", "暴走", "翻弄", "恐怖", "迫害"]
             },
             general: {
-                output_general: true,
-                output_arts: true,
-                output_items: true,
-                output_damage: true,
-                output_reaction: true,
                 output_resistFalldown: true,
                 output_beastActionUdonarium: true,
                 sort_type: "《魔獣化》の有無",
@@ -152,7 +147,27 @@ const App_options = Vue.createApp({
                 arts_fumble: [],
                 arts_fumble_list: ["ダメ魔物", "しまった、こんな時に！", "偉大なる血脈", "この世ならざるもの", "不思議科学", "身体改造処置", "精神強化処置", "不安定なる高性能", "契約代償：不運", "秘されし真名"]
             },
+            advanced_order: {
+                order: ["登場", "一般的な判定", "一般的な行動", "アーツ", "アイテム", "リアクション", "愛・罪の効果", "ダメージロール", "能力値一覧", "リソース操作"],
+                usable: {
+                    "登場": true, "一般的な判定": true, "一般的な行動": true, "アーツ": true, "アイテム": true, "リアクション": true,
+                    "愛・罪の効果": true, "ダメージロール": true, "能力値一覧": true, "リソース操作": true
+                },
+                notes: {
+                    "登場": "シーン登場時の人間性低下ダイスを出力します。",
+                    "一般的な判定": "一般的な判定式を出力します。",
+                    "一般的な行動": "一般的な行動と、武器攻撃の宣言文を出力します。",
+                    "アーツ": "アーツの使用宣言文を出力します。",
+                    "アイテム": "アイテムの使用宣言文を出力します。",
+                    "リアクション": "「ドッジ」と各武器によるガード宣言を出力します。",
+                    "愛・罪の効果": "愛や罪の効果一覧を出力します。",
+                    "ダメージロール": "各武器欄からダメージロール式を抽出し、出力します。",
+                    "能力値一覧": "チャットパレットに【能力値】を埋め込みます。",
+                    "リソース操作": "リソース操作コマンドの定型文を埋め込みます。"
+                }
+            },
             palette: "",
+            palette_error: [],
             udona_pone: {
                 name: "",
                 baseStatus: [],
@@ -177,10 +192,14 @@ const App_options = Vue.createApp({
         };
     },
     methods: {
+        system_selected() {
+            return appmp.system_selected;
+        },
         initialize_data() {
             this.init_mods_list();
             this.init_pone_generator();
             this.palette = "";
+            this.palette_error = [];
         },
         init_mods_list() {
             this.mods.score_list = {
@@ -371,6 +390,13 @@ const App_options = Vue.createApp({
                     poneGenerator_udonarium(appmp.main_data);
                     break;
             }
+        },
+        advanced_order_reset() {
+            this.advanced_order.order = ["登場", "一般的な判定", "一般的な行動", "アーツ", "アイテム", "リアクション", "愛・罪の効果", "ダメージロール", "能力値一覧", "リソース操作"];
+            this.advanced_order.usable = {
+                    "登場": true, "一般的な判定": true, "一般的な行動": true, "アーツ": true, "アイテム": true, "リアクション": true,
+                    "愛・罪の効果": true, "ダメージロール": true, "能力値一覧": true, "リソース操作": true
+            };
         }
     },
     computed: {
