@@ -164,7 +164,7 @@
                         </li>
                         <li>「使用ツール」から、使用予定のオンラインセッションツールを選択する。
                             <ul>
-                                <li>選択できるのは<strong class="w3-text-red">「ココフォリア」「ユドナリウム」「ユドナリウムリリィ」「TRPGスタジオ」「Tekey」「Quoridorn」</strong>の6種。（R3/8/1時点では「Tekey」「Quoridorn」は機能的な差はない）</li>
+                                <li>選択できるのは<strong class="w3-text-red">「ココフォリア」「ユドナリウム」「ユドナリウムリリィ」「TRPGスタジオ」「Tekey」「Quoridorn」</strong>の6種。</li>
                                 <li>該当するものがない場合は「なし」を選択すること。</li>
                             </ul>
                         </li>
@@ -188,129 +188,79 @@
                     </ol>
                 </div>
 
-                <!-- 基本的な出力のオプション -->
+                <!-- 出力の順序 -->
                 <p class="w3-container w3-leftbar w3-border-bottom w3-border-indigo" style="font-weight:bold;">
-                    <button class="w3-indigo w3-hover-blue" @click="show.sec_gen=!show.sec_gen" style="margin-right:1em;">
+                    <button class="w3-indigo w3-hover-blue" @click="show.sec_order=!show.sec_order" style="margin-right:1em;">
                         開閉
                     </button>
-                    基本的な出力のオプション
+                    出力する項目と順序の設定
                 </p>
-                <div class="w3-container" v-show="show.sec_gen">
-                    <label class="r-margin afterbr">
-                        <input type="checkbox" v-model="general.output_general" checked>
-                        一般的な行動のテキストを出力する
-                        <span class="c-tooltip w3-text-indigo" data-tooltip="「一般的な行動」では、「アクションなしの宣言」「通常移動」「離脱移動」および「メジャーアクションによる各武器/乗り物での攻撃」の宣言テキストを出力します。">
-                            <i class="fas fa-question-circle"></i>
-                        </span>
-                    </label>
-                    <label class="r-margin afterbr">
-                        <input type="checkbox" v-model="general.output_arts" checked>
-                        取得アーツの情報を出力する
-                        <span class="c-tooltip w3-text-indigo" data-tooltip="取得しているアーツの使用宣言を行うためのテキストを出力します。出力の設定は、「アーツ・アイテムデータの出力」でも行えます。">
-                            <i class="fas fa-question-circle"></i>
-                        </span>
-                    </label>
-                    <label class="r-margin afterbr">
-                        <input type="checkbox" v-model="general.output_items" checked>
-                        取得アイテムの情報を出力する
-                        <span class="c-tooltip w3-text-indigo" data-tooltip="取得しているアイテムの使用宣言を行うためのテキストを出力します。出力の設定は、「アーツ・アイテムデータの出力」でも行えます。">
-                            <i class="fas fa-question-circle"></i>
-                        </span>
-                    </label>
-                    <label class="r-margin afterbr">
-                        <input type="checkbox" v-model="general.output_damage" checked>
-                        武器・乗り物のダメージロール用テキストを出力する
-                        <span class="c-tooltip w3-text-indigo" data-tooltip="所持している武器や乗り物によるダメージロールの式を出力します。出力の詳細は、「解説」や「武器・ダメージロールデータの出力」もご覧ください。">
-                            <i class="fas fa-question-circle"></i>
-                        </span>
-                    </label>
-                    <label class="r-margin afterbr">
-                        <input type="checkbox" v-model="general.output_reaction">
-                        一般的なリアクションのテキストを出力する
-                        <span class="c-tooltip w3-text-indigo" data-tooltip="「一般的なリアクション」では、「リアクション放棄の宣言」「ドッジ宣言」「ガード値が記入されている、各武器/乗り物によるガード宣言」の出力を行います。">
-                            <i class="fas fa-question-circle"></i>
-                        </span>
-                    </label>
-                    <ul style="margin-top: 1em;">
-                        <li style="list-style-type: none;">
-                            <strong>判定式の出力に関連するオプション項目群</strong>
-                            <ul>
-                                <li>判定式の出力全般
-                                    <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
-                                        <li>
-                                            <label>
-                                                <input type="checkbox" v-model="general.output_resistFalldown" style="vertical-align:middle; margin-right:0,5em;">
-                                                「堕落判定」向けの判定行を設け、キャラクターに紐付けるステータスに「絆数」を追加する
-                                            </label>
-                                            <span class="c-tooltip w3-text-indigo" data-tooltip="キャラクター駒の情報に 絆数 を追加し、堕落判定の判定式を自動出力するかどうかを設定できます。この設定を使用する場合、「思い出の品」の効果欄には [絆数D6] と書くのもよいでしょう。">
-                                                <i class="fas fa-question-circle"></i>
-                                            </span>
-                                        </li>
-                                        <li>
-                                            <label>
-                                                <input type="checkbox" v-model="general.output_judgeTextCalculated" style="vertical-align:middle; margin-right:0,5em;">
-                                                判定式を出力する時は、可能な限り計算したものを出力する
-                                            </label>
-                                            <span class="c-tooltip w3-text-indigo" data-tooltip="判定式が 肉体+2+2 のような書き方をされている場合に、これを {肉体}+4 など可能な限り加減算をまとめたものを表示するかどうかを決めることができます。">
-                                                <i class="fas fa-question-circle"></i>
-                                            </span>
-                                        </li>
-                                        <li>
-                                            判定式の並べ替え基準：
-                                            <select v-model="general.sort_type" style="margin-right:1em;">
-                                                <option v-for="t in general.option_sort_type" :value="t">{{t}}</option>
-                                            </select>
-                                            <span class="c-tooltip w3-text-indigo" data-tooltip="一般的な判定式の並べ順を設定する項目です。">
-                                                <i class="fas fa-question-circle"></i>
-                                            </span>
-                                        </li>
-                                        <span class="w3-small w3-text-red prebr" style="margin-left: 1em;">{{general_sort_type_description}}</span>
-                                    </ul>
-                                </li>
-                                <li>アーツ「判定値」欄からの出力
-                                    <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
-                                        <li>
-                                            出力する判定式の選別：
-                                            <select v-model="arts.judge_type" style="margin-right:1em;">
-                                                <option v-for="t in arts.option_judge_type" :value="t">{{t}}</option>
-                                            </select>
-                                            <span class="c-tooltip w3-text-indigo" data-tooltip="アーツの「判定値」欄から判定式を抽出する際の、出力の設定です。">
-                                                <i class="fas fa-question-circle"></i>
-                                            </span>
-                                        </li>
-                                        <span class="w3-small w3-text-red prebr" style="margin-left: 1em;">{{judge_arts_description}}</span>
-                                    </ul>
-                                </li>
-                                <li>武器「命中」欄からの出力
-                                    <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
-                                        <li>出力する判定式の選別：
-                                            <select v-model="damagerolls.judge_type" style="margin-right: 1em;">
-                                                <option v-for="t in damagerolls.option_judge_type" :value="t">{{t}}</option>
-                                            </select>
-                                            <span class="c-tooltip w3-text-indigo" data-tooltip="武器の「命中」欄から判定式を抽出する際の、出力の設定です。">
-                                                <i class="fas fa-question-circle"></i>
-                                            </span>
-                                        </li>
-                                        <li>
-                                            命中欄が符号のない整数の場合：
-                                            <label v-for="t in damagerolls.option_judge_head" style="margin-right: 1em;">
-                                                <input type="radio" v-model="damagerolls.judge_head_number" :value="t">
-                                                <span> {{t}}</span>
-                                            </label>
-                                            <span class="c-tooltip w3-text-indigo" data-tooltip="武器の「命中」欄が符号なしの整数の場合、その数字をそのまま判定の基準値として扱うか、プラス修正として扱うかを選べます。">
-                                                <i class="fas fa-question-circle"></i>
-                                            </span>
-                                        </li>
-                                        <span class="w3-small w3-text-red prebr afterbr" style="margin-left: 1em;">{{judge_weapons_description[0]}}</span>
-                                        <span class="w3-small w3-text-red prebr" style="margin-left: 1em;" v-show="judge_weapons_description.length > 1">{{judge_weapons_description[1]}}</span>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
+                <div class="w3-container" v-show="show.sec_order">
+                    <div style="display: flex; flex-wrap: wrap;">
+                        <table class="poneSet_table w3-small" border="1">
+                            <thead>
+                                <tr class="w3-teal">
+                                    <td style="padding:0 0.5em; font-weight:bold;">項目</td>
+                                    <td style="padding:0 0.5em; font-weight:bold;">内容</td>
+                                    <td style="text-align:center; font-weight:bold;">操作</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(t, index) in advanced_order.order" :class="[!advanced_order.usable[t] ? 'w3-grey w3-text-white' : 'w3-hover-pale-green']">
+                                    <td class="hover-pointer" style="padding:0 0.5em;" @click="advanced_order.usable[t]=!advanced_order.usable[t]">
+                                        <label class="r-margin r-margin-order">
+                                            <input type="checkbox" v-model="advanced_order.usable[t]" style="position:relative; top:2px;">
+                                            {{t}}
+                                        </label>
+                                    </td>
+                                    <td class="hover-pointer" style="padding:0 0.5em;" @click="advanced_order.usable[t]=!advanced_order.usable[t]">
+                                        {{advanced_order.notes[t]}}
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <button @click="control_status_ccfolia($event, advanced_order.order, 'up')" class="manuever_stats" :disabled="index == 0">∧</button>
+                                        <button @click="control_status_ccfolia($event, advanced_order.order, 'down')" class="manuever_stats" :disabled="index == advanced_order.order.length-1">∨</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3">
+                                        <button class="w3-button w3-teal w3-hover-green w3-round" @click="advanced_order_reset()" style="width:100%; font-weight:bold;">
+                                            チャットパレット出力項目と順序を初期化する
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <ul class="w3-small">
+                            <li>表の「項目」のうち、チェックボックスにチェックの入ったものだけが、<strong>上から順に</strong>出力されます。</li>
+                            <li>「操作」ボタンで順序を入れ替えることもできます。</li>
+                            <li>一部の項目は、対応するオンラインセッションツールを選択している場合のみ出力されます。
+                                <ul>
+                                    <li v-if="['ユドナリウムリリィ', 'ユドナリウム', 'ココフォリア'].includes(system_selected())" class="w3-text-blue" style="font-weight:bold;">
+                                        このセッションツールでは、駒データの出力が可能です。
+                                    </li>
+                                    <li v-if="['ユドナリウムリリィ'].includes(system_selected())" class="w3-text-blue" style="font-weight:bold;">
+                                        このセッションツールでは、登場時の人間性低下・アーツコストを宣言と同時に支払います。
+                                    </li>
+                                    <li v-if="!['ユドナリウムリリィ', 'ユドナリウム', 'Tekey', 'Quoridorn'].includes(system_selected())" class="w3-text-red" style="font-weight:bold;">
+                                        「能力値一覧」は、このセッションツールでは出力されません。
+                                    </li>
+                                    <li v-if="!['ユドナリウムリリィ', 'ココフォリア'].includes(system_selected())" class="w3-text-red" style="font-weight:bold;">
+                                        「リソース操作」は、このセッションツールでは出力されません。
+                                    </li>
+                                    <li v-if="['なし', 'TRPGスタジオ'].includes(system_selected())" class="w3-text-red" style="font-weight:bold;">
+                                        このセッションツールでは、パレット中の【能力値】は直接数値で記載されます。
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <ul>
                         <li style="list-style-type:none; margin-top:1em;" v-if="hasPoneGenerator">
                             <strong>キャラクター駒出力に関するオプション群</strong>
                             <ul>
-                                <li>駒出力全般に関するオプション
+                                <li style="margin-top:0.75em;">駒出力全般に関するオプション
                                     <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
                                         <li>
                                             <label>
@@ -326,7 +276,7 @@
                                         </li>
                                     </ul>
                                 </li>
-                                <li v-if="general.session_tool.match(/ユドナリウム/)">
+                                <li v-if="general.session_tool.match(/ユドナリウム/)" style="margin-top:0.75em;">
                                     ユドナリウム系セッションツールに関するオプション
                                     <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
                                         <li>
@@ -337,6 +287,88 @@
                                         </li>
                                     </ul>
                                 </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 基本的な出力のオプション -->
+                <p class="w3-container w3-leftbar w3-border-bottom w3-border-indigo" style="font-weight:bold;">
+                    <button class="w3-indigo w3-hover-blue" @click="show.sec_gen=!show.sec_gen" style="margin-right:1em;">
+                        開閉
+                    </button>
+                    基本的な判定のオプション
+                </p>
+                <div class="w3-container" v-show="show.sec_gen">
+                    <ul style="margin-top: 1em;">
+                        <li style="list-style-type: none;">判定式の出力全般
+                            <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
+                                <li>
+                                    <label>
+                                        <input type="checkbox" v-model="general.output_resistFalldown" style="vertical-align:middle; margin-right:0,5em;">
+                                        「堕落判定」向けの判定行を設け、キャラクターに紐付けるステータスに「絆数」を追加する
+                                    </label>
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="キャラクター駒の情報に 絆数 を追加し、堕落判定の判定式を自動出力するかどうかを設定できます。この設定を使用する場合、「思い出の品」の効果欄には [絆数D6] と書くのもよいでしょう。">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </li>
+                                <li>
+                                    <label>
+                                        <input type="checkbox" v-model="general.output_judgeTextCalculated" style="vertical-align:middle; margin-right:0,5em;">
+                                        判定式を出力する時は、可能な限り計算したものを出力する
+                                    </label>
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="判定式が 肉体+2+2 のような書き方をされている場合に、これを {肉体}+4 など可能な限り加減算をまとめたものを表示するかどうかを決めることができます。">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </li>
+                                <li>
+                                    判定式の並べ替え基準：
+                                    <select v-model="general.sort_type" style="margin-right:1em;">
+                                        <option v-for="t in general.option_sort_type" :value="t">{{t}}</option>
+                                    </select>
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="一般的な判定式の並べ順を設定する項目です。">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </li>
+                                <span class="w3-small w3-text-red prebr" style="margin-left: 1em;">{{general_sort_type_description}}</span>
+                            </ul>
+                        </li>
+                        <li style="list-style-type: none; margin-top: 0.75em;">アーツ「判定値」欄からの出力
+                            <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
+                                <li>
+                                    出力する判定式の選別：
+                                    <select v-model="arts.judge_type" style="margin-right:1em;">
+                                        <option v-for="t in arts.option_judge_type" :value="t">{{t}}</option>
+                                    </select>
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="アーツの「判定値」欄から判定式を抽出する際の、出力の設定です。">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </li>
+                                <span class="w3-small w3-text-red prebr" style="margin-left: 1em;">{{judge_arts_description}}</span>
+                            </ul>
+                        </li>
+                        <li style="list-style-type: none; margin-top: 0.75em;">武器「命中」欄からの出力
+                            <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
+                                <li>出力する判定式の選別：
+                                    <select v-model="damagerolls.judge_type" style="margin-right: 1em;">
+                                        <option v-for="t in damagerolls.option_judge_type" :value="t">{{t}}</option>
+                                    </select>
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="武器の「命中」欄から判定式を抽出する際の、出力の設定です。">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </li>
+                                <li>
+                                    命中欄が符号のない整数の場合：
+                                    <label v-for="t in damagerolls.option_judge_head" style="margin-right: 1em;">
+                                        <input type="radio" v-model="damagerolls.judge_head_number" :value="t">
+                                        <span> {{t}}</span>
+                                    </label>
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="武器の「命中」欄が符号なしの整数の場合、その数字をそのまま判定の基準値として扱うか、プラス修正として扱うかを選べます。">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </li>
+                                <span class="w3-small w3-text-red prebr afterbr" style="margin-left: 1em;">{{judge_weapons_description[0]}}</span>
+                                <span class="w3-small w3-text-red prebr" style="margin-left: 1em;" v-show="judge_weapons_description.length > 1">{{judge_weapons_description[1]}}</span>
                             </ul>
                         </li>
                     </ul>
@@ -353,7 +385,7 @@
                             </li>
                             <li style="list-style-type: none; margin-top:1em;">
                                 その他、「判定値」欄、「命中」欄の判定式化について、書き方の詳細は
-                                <a href="howtowrite.html" target="_blank">書き方の詳細</a>
+                                <a href="howtowrite.html" target="_blank" class="w3-hover-pale-blue">書き方の詳細</a>
                                 をご参照ください。
                             </li>
                         </ul>
@@ -746,8 +778,11 @@
                     </button>
                 </div>
                 <div class="w3-container" v-show="show.sec_palette">
-                    <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-small w3-padding-8" style="font-weight:bold;" v-if="palette_hasError">
-                        チャットパレット作成時に、正常に作成できなかった判定式があります。チャットパレットの内容を確認してください。
+                    <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-small w3-padding-8" style="font-weight:bold;" v-show="palette_hasError">
+                        チャットパレット作成時に、正常に作成できなかった式があります。チャットパレットの内容を確認してください。<br>
+                        <ul style="margin: 0.5em;">
+                            <li v-for="e in palette_error">{{e}}</li>
+                        </ul>
                     </div>
                     <textarea rows="15" id="palette-converter-result" class="w3-small" v-model="palette" placeholder="作成されたチャットパレットデータはここに表示されます。" style="width:100%;">
                     </textarea>
