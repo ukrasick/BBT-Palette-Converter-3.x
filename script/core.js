@@ -608,7 +608,7 @@ function checkVehicleAttackType(item) {
     // 種別に「魔艦」を含む乗り物はすべて射撃攻撃扱い
     if(item.type && item.type.match(/魔艦/)) { return "射撃"; }
     // 以下の名称の乗り物は特別に射撃攻撃扱い。名前か備考欄にこの文字を含む場合、射撃攻撃として扱う（備考欄を参照するのは「●●相当」と書かれることを想定して）
-    let re = /(コスモマシン|アームドヴィークル|戦闘飛装脚|要塞宝具)/;
+    let re = /(コスモマシン|アームドヴィークル|戦闘飛装脚|要塞宝具|未確認飛行物体)/;
     if(item.name && item.name.match(re)) { return "射撃"; }
     if(item.notes && item.notes.match(re)) { return "射撃"; }
     return "白兵";
