@@ -25,6 +25,12 @@ function convert(data, cache=false) {
     }
     console.log("使用データの確認", data);
 
+    // ファンブル値変化アーツの自動検索がONの場合
+    if(appo.general.fumbleArtsCheckBeforeOutput) {
+        appo.show.sec_mods = true;
+        checkGeneralFumbleArtsExist(data);
+    }
+
     // テキストの作成開始
     let result = [];
     // 「出力する項目と順番」の設定にあわせて、順々にテキストを作成・追加
@@ -229,6 +235,28 @@ function getCharacterKinds(data) {
     }
     data.allKinds = result;
     return data.allKinds;
+}
+
+// アーツ名の一覧を作成
+function getAllArtsNameList(data) {
+    if("allArtsList" in data) { return data.allArtsList; }
+    let result = [];
+    for(let i of data.arts) {
+        if(!i || !i.name) { continue; }
+        result.push(i.name.replace(/[\r\n]+/g, "").replace("!", "！").replace("?", "？").replace(":", "："));
+    }
+    data.allArtsList = result;
+    return data.allArtsList;
+}
+
+// 汎用ファンブル値設定の指定アーツがあるかどうかを検索
+function checkGeneralFumbleArtsExist(data) {
+    let artsList = getAllArtsNameList(data);
+    for(let i of appo.mods.arts_fumble_list) {
+        if(artsList.join(",").match(new RegExp(i))) {
+            appo.mods.arts_fumble.push(i);
+        }
+    }
 }
 
 // エラーが生じた場合にそれをpalette_errorに挿入する
@@ -679,7 +707,10 @@ function makeJudgeTextV3(text, params, mode="h", type="general", obj=null) {
         }
     }
     // 人間性の表記・クリティカル値の表記
-    if(sys.cite_hum) {
+    if(appo.mods.arts_fumble.includes("どうして自分だけ？")) {
+        // 《どうして自分だけ？》取得にチェックが入っている場合、@C13で固定（絶対にクリティカルしない）
+        result.push("@13");
+    } else if(sys.cite_hum) {
         // 人間性の引用ができる場合、「人間性」のコマンド表記を使ってBOTに計算させる
         result.push("%{人間性}");
         if(cri !== 0) {

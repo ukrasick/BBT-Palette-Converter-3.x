@@ -322,6 +322,15 @@
                                     </span>
                                 </li>
                                 <li>
+                                    <label>
+                                        <input type="checkbox" v-model="general.fumbleArtsCheckBeforeOutput" style="vertical-align:middle; margin-right:0,5em;">
+                                        出力前に、「ファンブル値が変化するアーツ」の有無を検索する
+                                    </label>
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="「各【能力値】判定＆堕落判定への個別の修正」内のオプション、「汎用ファンブル値の設定」で指定できるアーツがある場合、自動的にチェックを入れます。アーツ名が正確でなかったり、記号が半角で入力されていると、アーツを取得していても検索できない場合があります。">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </li>
+                                <li>
                                     判定式の並べ替え基準：
                                     <select v-model="general.sort_type" style="margin-right:1em;">
                                         <option v-for="t in general.option_sort_type" :value="t">{{t}}</option>
@@ -619,7 +628,7 @@
                         </div>
                         <div class="w3-container">
                             <p class="w3-border-bottom w3-leftbar w3-border-indigo" style="font-weight:bold; padding-left:0.5em;">汎用ファンブル値の設定</p>
-                            <p class="w3-small">　取得しているアーツにチェックを入れること。</p>
+                            <p class="w3-small">　取得しているアーツにチェックを入れること。（便宜上、《どうして自分だけ？》の設定もここで行います）</p>
                             <ul class="columns" style="list-style-type:none; padding-left:1em;">
                                 <li v-for="art in mods.arts_fumble_list">
                                     <label>

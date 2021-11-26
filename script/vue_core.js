@@ -108,7 +108,8 @@ const App_options = Vue.createApp({
                 session_tool: "なし",
                 reOutput_pone_params: false,
                 output_pone_immediately: false,
-                output_judgeTextCalculated: true
+                output_judgeTextCalculated: true,
+                fumbleArtsCheckBeforeOutput: false
             },
             arts: {
                 timing_empty: true,
@@ -145,7 +146,7 @@ const App_options = Vue.createApp({
                     binds: {a:0, h:0, b:0}
                 },
                 arts_fumble: [],
-                arts_fumble_list: ["ダメ魔物", "しまった、こんな時に！", "偉大なる血脈", "この世ならざるもの", "不思議科学", "身体改造処置", "精神強化処置", "不安定なる高性能", "契約代償：不運", "秘されし真名"]
+                arts_fumble_list: ["ダメ魔物", "しまった、こんな時に！", "偉大なる血脈", "この世ならざるもの", "不思議科学", "身体改造処置", "精神強化処置", "不安定なる高性能", "契約代償：不運", "秘されし真名", "どうして自分だけ？"]
             },
             advanced_order: {
                 order: ["登場", "一般的な判定", "一般的な行動", "アーツ", "アイテム", "リアクション", "愛・罪の効果", "ダメージロール", "能力値一覧", "リソース操作"],
