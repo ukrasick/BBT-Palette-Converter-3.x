@@ -324,9 +324,9 @@
                                 <li>
                                     <label>
                                         <input type="checkbox" v-model="general.fumbleArtsCheckBeforeOutput" style="vertical-align:middle; margin-right:0,5em;">
-                                        出力前に、「ファンブル値が変化するアーツ」の有無を検索する
+                                        「汎用クリティカル値・ファンブル値の設定」を自動入力する
                                     </label>
-                                    <span class="c-tooltip w3-text-indigo" data-tooltip="「各【能力値】判定＆堕落判定への個別の修正」内のオプション、「汎用ファンブル値の設定」で指定できるアーツがある場合、自動的にチェックを入れます。アーツ名が正確でなかったり、記号が半角で入力されていると、アーツを取得していても検索できない場合があります。">
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="「各【能力値】判定＆堕落判定への個別の修正」内のオプション、「汎用クリティカル値・ファンブル値の設定」で指定できるデータがある場合、自動的にチェックを入れます。アーツ名が正確でなかったり、記号が半角で入力されていると、アーツを取得していても検索できない場合があります。">
                                         <i class="fas fa-question-circle"></i>
                                     </span>
                                 </li>
@@ -627,12 +627,17 @@
                             </ul>
                         </div>
                         <div class="w3-container">
-                            <p class="w3-border-bottom w3-leftbar w3-border-indigo" style="font-weight:bold; padding-left:0.5em;">汎用ファンブル値の設定</p>
-                            <p class="w3-small">　取得しているアーツにチェックを入れること。（便宜上、《どうして自分だけ？》の設定もここで行います）</p>
+                            <p class="w3-border-bottom w3-leftbar w3-border-indigo" style="font-weight:bold; padding-left:0.5em;">汎用クリティカル値・ファンブル値の設定</p>
+                            <p class="w3-small">　取得しているアーツにチェックを入れること。</p>
                             <ul class="columns" style="list-style-type:none; padding-left:1em;">
                                 <li v-for="art in mods.arts_fumble_list">
                                     <label>
                                         <input type="checkbox" v-model="mods.arts_fumble" :value="art"><b>《{{art}}》</b>
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        <input type="checkbox" v-model="mods.arts_fumble" value="モータル"><b>「ルーツ：モータル」（《記憶封印》を除く）</b>
                                     </label>
                                 </li>
                             </ul>

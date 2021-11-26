@@ -251,11 +251,16 @@ function getAllArtsNameList(data) {
 
 // 汎用ファンブル値設定の指定アーツがあるかどうかを検索
 function checkGeneralFumbleArtsExist(data) {
+    // アーツ名一覧を作成し、すべて繋げた文字列にしたうえで、該当アーツの名前が含まれているかどうかをチェック
     let artsList = getAllArtsNameList(data);
     for(let i of appo.mods.arts_fumble_list) {
         if(artsList.join(",").match(new RegExp(i))) {
             appo.mods.arts_fumble.push(i);
         }
+    }
+    // 《記憶封印》されていない、ハーミット純血のモータルであるかどうかを確認
+    if(isMortal(data)) {
+        appo.mods.arts_fumble.push("モータル");
     }
 }
 
@@ -710,6 +715,9 @@ function makeJudgeTextV3(text, params, mode="h", type="general", obj=null) {
     if(appo.mods.arts_fumble.includes("どうして自分だけ？")) {
         // 《どうして自分だけ？》取得にチェックが入っている場合、@C13で固定（絶対にクリティカルしない）
         result.push("@13");
+    } else if(appo.mods.arts_fumble.includes("モータル")) {
+        // 「モータル（《記憶封印》は除く）」にチェックが入っている場合、@C12で固定（人間性のデータを参照しない）
+        result.push("@12");
     } else if(sys.cite_hum) {
         // 人間性の引用ができる場合、「人間性」のコマンド表記を使ってBOTに計算させる
         result.push("%{人間性}");
