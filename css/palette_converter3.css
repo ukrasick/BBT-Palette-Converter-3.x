@@ -294,7 +294,7 @@ div.history-container dt {
 div.history-container dd::before {
     font-family: 'Font Awesome 5 Free';
     content: "\f105";
-    position: relative;
+    position: absolute;
     left: -1em;
     font-weight: bold;
     color: #000;
@@ -303,4 +303,5 @@ div.history-container dd::before {
 div.history-container dd {
     padding-top: 0.25em;
     padding-bottom: 0.25em;
+    position: relative;
 }
