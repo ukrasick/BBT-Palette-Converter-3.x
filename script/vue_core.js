@@ -109,7 +109,8 @@ const App_options = Vue.createApp({
                 reOutput_pone_params: false,
                 output_pone_immediately: false,
                 output_judgeTextCalculated: true,
-                fumbleArtsCheckBeforeOutput: false
+                fumbleArtsCheckBeforeOutput: false,
+                pronouncing: false
             },
             arts: {
                 timing_empty: true,
@@ -458,6 +459,9 @@ const App_options = Vue.createApp({
         },
         allowPoneGenerator() {
             return appmp.main_data_name && this.palette && this.hasPoneGenerator;
+        },
+        hasRubyData() {
+            return Object.keys(RUBY_TEMPLATE).includes(this.general.session_tool);
         }
     }
 });

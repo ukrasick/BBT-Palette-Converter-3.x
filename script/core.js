@@ -8,6 +8,77 @@ const ABILITIES = {
 };
 // 文字実体参照への変換対象
 const DICTIONARY_TO_ENTITY_REFERENCES = {'<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;', '&': '&amp;'};
+// ルビ振り対象アーツ
+const ARTS_WITH_RUBY = {
+    "^血脈": "ストレイン",
+    "秦家": "インペリアル",
+    "楚家": "ドラケン",
+    "斉家": "ランベック",
+    "燕家": "ディアブロ",
+    "趙家": "パラティヌス",
+    "魏家": "ドゥカート",
+    "韓家": "ノスフォロス",
+    "虚銃": "うつろなるじゅう",
+    "餓光": "かつえしひかり",
+    "空門": "くうなるもん",
+    "白闇": "しろきやみ",
+    "殲舞": "せんめつのまい",
+    "魂裂": "たましいさくもの",
+    "罪弾": "たまのなはつみ",
+    "貫閃": "つらぬくいっせん",
+    "遠雷": "とおきいかずち",
+    "双銃": "ふたごのじゅう",
+    "砲吼": "ほえたけるつつ",
+    "兇弾": "まがきじゅうだん",
+    "貪闇": "むさぼるやみ",
+    "銃僕": "じゅうのしもべ",
+    "白滅": "しろきほろび",
+    "呑界": "せかいをのむ",
+    "喰我": "われをくらう",
+    "究極破壊砲": "オメガスマッシャー",
+    "宇宙の旅": "スペースオデッセイ",
+    "異能綺士": "サイコリッター",
+    "聖骸機": "ネクロメイル",
+    "王の中の王": "キング・オブ・モンスターズ",
+    "太古の王者": "キングオブデストロイヤー",
+    "氷獄現出": "Let\\sIt\\sGo",
+    "天使核": "エンジェルシード",
+    "水晶邪封陣": "クリト＝ファー",
+    "星の光": "ミィヤ・ザワ・ケーンズィ",
+    "精霊獣召喚": "フェア・ビート・コー",
+    "呪圏拡大": "エクステンド",
+    "剣の舞": "ソードダンス",
+    "魔法盾": "マジックシールド",
+    "身体強化": "フィジカルエンチャント",
+    "次元再編": "ストレンジディメンジョン",
+    "夢魔術師": "オネイロス",
+    "限界突破": "リミットブレイク",
+    "反救世主殲滅機構": "アンチクライストジェノサイダー",
+    "漆黒機械": "ブラックギフト",
+    "秒針剣": "チクタクソード",
+    "終末時計": "ドゥームズデイ・クロック",
+    "価値ある相棒": "クオリティメイト",
+    "ささやかな魔法": "タイニーマジック"
+};
+// ルビ振り対象アイテム
+const ITEMS_WITH_RUBY = {
+    "万能水銀": "オムニ・マーキュリー",
+    "吐息": "ブレス",
+    "魔殺弾": "マジシャンベイン",
+    "下級魔術": "ヘッジマジック",
+    "簡易幻影": "イリュージョン",
+    "魔術師の手": "マジシャンズハンド",
+    "占術": "ディヴィネーション",
+    "幽体離脱": "アストラルプロジェクション",
+    "精神操作": "マインドトリック",
+    "正義執行官": "プラエトル",
+    "聖骸機": "ネクロメイル",
+    "叫魂石": "クライストーン"
+};
+// ルビ振りテンプレート 本文を%parent%、ルビ部分を%ruby%として記入
+const RUBY_TEMPLATE = {
+    "ユドナリウムリリィ": "｜%parent%《%ruby%》"
+};
 
 function convert(data, cache=false) {
     // データの取得
@@ -790,13 +861,16 @@ function outputGeneralActions(data) {
         "ムーブ - 通常移動",
         "メジャー - 離脱移動"
     ];
+    // ルビ振りのチェックが入っているかどうかを確認
+    let dictionary = makeConvertListWithRuby();
     // 武器の攻撃宣言表示
     for(let i of data.weapons) {
         if(!i || !i.attack || !i.name || !i.type) { continue; }
         let declare = [];
-        if(i.type.match(/白/)) { declare.push(`メジャー - 「${i.name}」で白兵攻撃`.replace(/\r?\n/g, '')); }
-        if(i.type.match(/射/)) { declare.push(`メジャー - 「${i.name}」で射撃攻撃`.replace(/\r?\n/g, '')); }
-        if(i.type.match(/乗/) && declare.length == 0) { declare.push(`メジャー - 「${i.name}」で${checkVehicleAttackType(i)}攻撃`.replace(/\r?\n/g, '')); }
+        let objName = makeObjectNameText(i, dictionary);
+        if(i.type.match(/白/)) { declare.push(`メジャー - ${objName}で白兵攻撃`.replace(/\r?\n/g, '')); }
+        if(i.type.match(/射/)) { declare.push(`メジャー - ${objName}で射撃攻撃`.replace(/\r?\n/g, '')); }
+        if(i.type.match(/乗/) && declare.length == 0) { declare.push(`メジャー - ${objName}で${checkVehicleAttackType(i)}攻撃`.replace(/\r?\n/g, '')); }
         result = result.concat(declare);
     }
     result = addSubHeadersAndFooterByTool("一般的な行動", result);
@@ -821,13 +895,15 @@ function outputItems(data) {
 function makeActionsTextV3(objs) {
     // モータルかどうかを確認
     let result = [];
+    // ルビ振りのチェックが入っているかどうかを確認
+    let dictionary = makeConvertListWithRuby();
     for(let i of objs) {
         if(!i || !i.name) { continue; }
         if(!appo.arts.timing_empty && !i.timing) { continue; }
         if(!appo.arts.timing_auto && i.timing === "常時") { continue; }
         let s = "";
         if(i.timing) { s += `${i.timing} -`; }
-        s += makeObjectNameText(i);
+        s += makeObjectNameText(i, dictionary);
         if("cost" in i) {
             if(appo.arts.include_cost && i.cost && i.timing !== "常時") {
                 if(appmp.system_selected === "ユドナリウムリリィ") {
@@ -888,12 +964,17 @@ function makeOtherToolCostText(cost) {
 }
 
 // アーツ、アイテムの宣言名作成
-function makeObjectNameText(obj) {
+function makeObjectNameText(obj, dictionary = void(0)) {
     if(!obj || !obj.name) { return ""; }
     let str = "";
+    let objName = obj.name;
+    // ユドナリリィ（ルビ機能）にチェックがある場合、アーツ名をチェックしてルビ振り版に置換
+    if(dictionary) {
+        objName = pronouncingObjectNameText(obj, dictionary);
+    }
     // "cost"のkeyがあるかでアーツかどうかを判定
     if("cost" in obj) {
-        str = `《${obj.name}》`;
+        str = `《${objName}》`;
         // アーツの場合、レベル表示設定も反映
         if(obj.level && !isNaN(parseInt(obj.level, 10))) {
             switch(appo.arts.display_level) {
@@ -907,9 +988,53 @@ function makeObjectNameText(obj) {
             }
         }
     } else {
-        str = `「${obj.name}」`;
+        str = `「${objName}」`;
     }
     return str;
+}
+
+// ルビ振り機能のためにリストから正規表現を作成
+function makeConvertListWithRuby() {
+    let result = void(0);
+    if(Object.keys(RUBY_TEMPLATE).includes(appmp.system_selected) && appo.general.pronouncing) {
+        result = {
+            arts: new RegExp(`(${Object.keys(ARTS_WITH_RUBY).join("|")})`, "g"),
+            items: new RegExp(`(${Object.keys(ITEMS_WITH_RUBY).join("|")})`, "g")
+        };
+    }
+    return result;
+}
+
+// ルビ振りの変換機能
+function pronouncingObjectNameText(obj, dictionary) {
+    // アーツ、アイテムデータの名称を取得（改行記号は削除する）
+    let objName = obj.name.replace(/[\r\n]/g, "");
+    // ルビ振り対象の一覧を取得（costが存在するかどうかでアーツかアイテムかを選別）
+    const indexForConvert = "cost" in obj ? dictionary.arts : dictionary.items;
+    // replaceでテキストを置換
+    objName = objName.replace(indexForConvert, function(s) {
+        return replacePronouncingText(obj, s);
+    });
+    return objName;
+}
+
+// ルビ振り変換のコア部分 obj: アーツ／アイテムデータ、s: マッチングしたテキスト
+function replacePronouncingText(obj, s) {
+    // 変換辞書を取得
+    const listWithRuby = "cost" in obj ? ARTS_WITH_RUBY : ITEMS_WITH_RUBY;
+    // そのオンセツールに応じた変換テンプレートを取得
+    const rubyTemplate = RUBY_TEMPLATE[appmp.system_selected];
+    // テンプレートが存在しない場合、変換せずに返却
+    if(!rubyTemplate) { return s; }
+    // 「血脈：●●」など行頭正規表現を含む索引に対応...keysに対して正規表現で検索をかけて合致するものを参照
+    let t = s;
+    if(!listWithRuby[t]) {
+        for(let i of Object.keys(listWithRuby)) {
+            if(i.match(s)) { t = i; break; }
+        }
+    }
+    // 使用するオンセツールに対応するテンプレートを取得したテキストで置換
+    return rubyTemplate.replace("%parent%", s).replace("%ruby%", listWithRuby[t]);
 }
 
 // リアクション宣言の作成
@@ -917,6 +1042,8 @@ function outputGeneralReactions(data) {
     if(!appo.advanced_order.usable["リアクション"]) { return ""; }
     // 基本的なデータを作成
     let result = ["リアクション不可/放棄", "リアクション - ドッジ"];
+    // ルビ振りのチェックが入っているかどうかを確認
+    let dictionary = makeConvertListWithRuby();
     // 武器データからガード値データを取得
     for(let i of data.weapons) {
         if(!i || !i.name || !i.guard) { continue; }
@@ -925,10 +1052,10 @@ function outputGeneralReactions(data) {
         let str_h = "";
         let str_b = "";
         if(h) {
-            str_h = `リアクション - ${makeObjectNameText(i)}でガード（ガード値：${h}）`.replace(/\r?\n/g, '');
+            str_h = `リアクション - ${makeObjectNameText(i, dictionary)}でガード（ガード値：${h}）`.replace(/\r?\n/g, '');
         }
         if(b) {
-            str_b = `リアクション - ${makeObjectNameText(i)}でガード【魔獣化中】（ガード値：${b}）`.replace(/\r?\n/g, '');
+            str_b = `リアクション - ${makeObjectNameText(i, dictionary)}でガード【魔獣化中】（ガード値：${b}）`.replace(/\r?\n/g, '');
         }
         if(i.type && i.type.match(/魔獣/)) {
             str_h = "";

@@ -252,6 +252,12 @@
                                     <li v-if="['なし', 'TRPGスタジオ'].includes(system_selected())" class="w3-text-red" style="font-weight:bold;">
                                         このセッションツールでは、パレット中の【能力値】は直接数値で記載されます。
                                     </li>
+                                    <li v-if="hasRubyData">
+                                        <label class="hover-pointer">
+                                            <input type="checkbox" v-model="general.pronouncing" style="margin-right:0.25em;vertical-align:middle;">
+                                            アーツ・アイテムの使用テキストに、特殊な読み方をするデータにルビ（振り仮名）を振る
+                                        </label>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>
@@ -264,13 +270,13 @@
                                     <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
                                         <li>
                                             <label>
-                                                <input type="checkbox" v-model="general.reOutput_pone_params" style="vertical-align:middle; margin-right:0,5em;">
+                                                <input type="checkbox" v-model="general.reOutput_pone_params" style="vertical-align:middle; margin-right:0.5em;">
                                                 チャットパレットを「再出力」する時、駒に紐づけるステータス／パラメータを都度初期化する
                                             </label>
                                         </li>
                                         <li>
                                             <label>
-                                                <input type="checkbox" v-model="general.output_pone_immediately" style="vertical-align:middle; margin-right:0,5em;">
+                                                <input type="checkbox" v-model="general.output_pone_immediately" style="vertical-align:middle; margin-right:0.5em;">
                                                 チャットパレットを「出力」する時、即座に駒データも出力する
                                             </label>
                                         </li>
@@ -281,7 +287,7 @@
                                     <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
                                         <li>
                                             <label>
-                                                <input type="checkbox" v-model="general.output_beastActionUdonarium" style="vertical-align:middle; margin-right:0,5em;">
+                                                <input type="checkbox" v-model="general.output_beastActionUdonarium" style="vertical-align:middle; margin-right:0.5em;">
                                                 《魔獣化》中の【行動値】を、「魔動」の名前で駒に実数値として紐付ける
                                             </label>
                                         </li>
@@ -305,7 +311,7 @@
                             <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
                                 <li>
                                     <label>
-                                        <input type="checkbox" v-model="general.output_resistFalldown" style="vertical-align:middle; margin-right:0,5em;">
+                                        <input type="checkbox" v-model="general.output_resistFalldown" style="vertical-align:middle; margin-right:0.5em;">
                                         「堕落判定」向けの判定行を設け、キャラクターに紐付けるステータスに「絆数」を追加する
                                     </label>
                                     <span class="c-tooltip w3-text-indigo" data-tooltip="キャラクター駒の情報に 絆数 を追加し、堕落判定の判定式を自動出力するかどうかを設定できます。この設定を使用する場合、「思い出の品」の効果欄には [絆数D6] と書くのもよいでしょう。">
@@ -314,7 +320,7 @@
                                 </li>
                                 <li>
                                     <label>
-                                        <input type="checkbox" v-model="general.output_judgeTextCalculated" style="vertical-align:middle; margin-right:0,5em;">
+                                        <input type="checkbox" v-model="general.output_judgeTextCalculated" style="vertical-align:middle; margin-right:0.5em;">
                                         判定式を出力する時は、可能な限り計算したものを出力する
                                     </label>
                                     <span class="c-tooltip w3-text-indigo" data-tooltip="判定式が 肉体+2+2 のような書き方をされている場合に、これを {肉体}+4 など可能な限り加減算をまとめたものを表示するかどうかを決めることができます。">
@@ -323,7 +329,7 @@
                                 </li>
                                 <li>
                                     <label>
-                                        <input type="checkbox" v-model="general.fumbleArtsCheckBeforeOutput" style="vertical-align:middle; margin-right:0,5em;">
+                                        <input type="checkbox" v-model="general.fumbleArtsCheckBeforeOutput" style="vertical-align:middle; margin-right:0.5em;">
                                         「汎用クリティカル値・ファンブル値の設定」を自動入力する
                                     </label>
                                     <span class="c-tooltip w3-text-indigo" data-tooltip="「各【能力値】判定＆堕落判定への個別の修正」内のオプション、「汎用クリティカル値・ファンブル値の設定」で指定できるデータがある場合、自動的にチェックを入れます。アーツ名が正確でなかったり、記号が半角で入力されていると、アーツを取得していても検索できない場合があります。">
