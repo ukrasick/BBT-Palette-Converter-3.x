@@ -157,6 +157,26 @@ li.htw_head::before {
 
 .hover-pointer {
     cursor: pointer;
+    padding: 0.25em;
+}
+
+label.hover-pointer input[type="checkbox"] {
+    margin-right:0.25em;
+    vertical-align:middle;
+}
+
+.pl-box-border {
+    border: 1px dashed #008080;
+    border-radius: 0.5em;
+    padding: 0.5em;
+    list-style-type: none;
+    margin-left: -3em;
+}
+
+.pl-tool-option-list {
+    position: relative;
+    list-style-type: none;
+    left: -3em;
 }
 
 /* アコーディオンメニュー */

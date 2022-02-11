@@ -41,7 +41,7 @@ const ARTS_WITH_RUBY = {
     "聖骸機": "ネクロメイル",
     "王の中の王": "キング・オブ・モンスターズ",
     "太古の王者": "キングオブデストロイヤー",
-    "氷獄現出": "Let\\sIt\\sGo",
+    "氷獄現出": "Let It Go",
     "天使核": "エンジェルシード",
     "水晶邪封陣": "クリト＝ファー",
     "星の光": "ミィヤ・ザワ・ケーンズィ",
@@ -77,8 +77,20 @@ const ITEMS_WITH_RUBY = {
 };
 // ルビ振りテンプレート 本文を%parent%、ルビ部分を%ruby%として記入
 const RUBY_TEMPLATE = {
-    "ユドナリウムリリィ": "｜%parent%《%ruby%》"
+    "ユドナリウムリリィ": "｜%parent%《%ruby%》",
+    "Udonarium with Fly": "｜%parent%《%ruby%》",
+    "ユドナリウム（ルビ対応）": "｜%parent%《%ruby%》"
 };
+// アーツ、アイテムの宣言文テンプレート
+const DECLARATION_TEMPLATES = {
+    "Udonarium with Fly": { arts: "《%name%》", items: "『%name%』" },
+    default: { arts: "《%name%》", items: "「%name%」" }
+};
+
+// アーツ、アイテムの宣言文テンプレートを取得する
+function getDeclarationTemplate(tool) {
+    return tool in DECLARATION_TEMPLATES ? DECLARATION_TEMPLATES[tool] : DECLARATION_TEMPLATES.default;
+}
 
 function convert(data, cache=false) {
     // データの取得
@@ -88,13 +100,13 @@ function convert(data, cache=false) {
     }
     // データの一時保存
     if(!cache) {
-        console.log("キャッシュからの読み込みではないため、データを一時保存");
+        // console.log("キャッシュからの読み込みではないため、データを一時保存");
         appmp.main_data = JSON.parse(JSON.stringify(data));
         appmp.main_data_name = data.base.name;
         // データをここでキャッシュしたものにすり替える
         data = appmp.main_data;
     }
-    console.log("使用データの確認", data);
+    // console.log("使用データの確認", data);
 
     // ファンブル値変化アーツの自動検索がONの場合
     if(appo.general.fumbleArtsCheckBeforeOutput) {
@@ -159,7 +171,7 @@ function convert(data, cache=false) {
     // キャラクター駒作成の処理へ
     initializePoneConverter(appmp.main_data, cache);
     // 即時発火チェック
-    console.log("キャラクター駒作成の即時発火", appo.general.output_pone_immediately);
+    // console.log("キャラクター駒作成の即時発火", appo.general.output_pone_immediately);
     if(appo.general.output_pone_immediately) {
         appo.ignitePoneGenerator();
     }
@@ -344,7 +356,7 @@ function alertFormulaMakingErrors(obj, mode=null) {
         s += "（作成エラー）" + (mode ? mode : "");
     }
     if(!appo.palette_error.includes(s)) { appo.palette_error.push(s); }
-    console.log("エラーログ挿入: " + s);
+    // console.log("エラーログ挿入: " + s);
 }
 
 // オンラインセッションツールに応じたセクションヘッダー／フッターの作成
@@ -651,7 +663,7 @@ function outputAllJudgeTextsV3(data) {
             str_h = makeJudgeTextV3(r.str, getAblParams(data), "h", r.type, r.obj);
         }
         catch(e) {
-            console.log(e.message);
+            // console.log(e.message);
             str_h = {text: "**Error: 式作成に失敗しました** ", note: `${r.obj.name} 判定`};
             alertFormulaMakingErrors(r.obj, "判定");
         }
@@ -662,7 +674,7 @@ function outputAllJudgeTextsV3(data) {
             str_b = makeJudgeTextV3(r.str, getAblParams(data), "b", r.type, r.obj);
         }
         catch(e) {
-            console.log(e.message);
+            // console.log(e.message);
             str_b = {text: "**Error: 式作成に失敗しました** ", note: `${r.obj.name} 判定（《魔獣化》中）`};
             alertFormulaMakingErrors(r.obj, "判定");
         }
@@ -764,7 +776,7 @@ function makeJudgeTextV3(text, params, mode="h", type="general", obj=null) {
     // 残った文字列から空白文字を削除し、基礎修正値を取得
     text = text.replace(/(\r?\n|\s+)/g, "");
     // let mod_base = parseInt(text, 10);
-    console.log(text, type, obj ? obj.name : "none");
+    // console.log(text, type, obj ? obj.name : "none");
     // テキストをどこまで計算する？
     if(text && appo.general.output_judgeTextCalculated) {
         let mod_base = evalCalculation(text.replace(/^\+(.*)/, "$1").replace(/[^\d\+\-\*\/]/g, ""));
@@ -867,10 +879,34 @@ function outputGeneralActions(data) {
     for(let i of data.weapons) {
         if(!i || !i.attack || !i.name || !i.type) { continue; }
         let declare = [];
-        let objName = makeObjectNameText(i, dictionary);
-        if(i.type.match(/白/)) { declare.push(`メジャー - ${objName}で白兵攻撃`.replace(/\r?\n/g, '')); }
-        if(i.type.match(/射/)) { declare.push(`メジャー - ${objName}で射撃攻撃`.replace(/\r?\n/g, '')); }
-        if(i.type.match(/乗/) && declare.length == 0) { declare.push(`メジャー - ${objName}で${checkVehicleAttackType(i)}攻撃`.replace(/\r?\n/g, '')); }
+        let objName = makeObjectNameText(i, dictionary, false, false);
+        if(i.type.match(/白/)) {
+            let str = "メジャー - ";
+            if(appmp.system_selected === "Udonarium with Fly" && appo.general.withFly.declareWithBlooming) {
+                str += `「${objName}で白兵攻撃${appo.general.withFly.addExclamationWithDeclaration ? "！" : ""}」`;
+            } else {
+                str += `${objName}で白兵攻撃`;
+            }
+            declare.push(str.replace(/\r?\n/g, ''));
+        }
+        if(i.type.match(/射/)) {
+            let str = "メジャー - ";
+            if(appmp.system_selected === "Udonarium with Fly" && appo.general.withFly.declareWithBlooming) {
+                str += `「${objName}で射撃攻撃${appo.general.withFly.addExclamationWithDeclaration ? "！" : ""}」`;
+            } else {
+                str += `${objName}で射撃攻撃`;
+            }
+            declare.push(str.replace(/\r?\n/g, ''));
+        }
+        if(i.type.match(/乗/) && declare.length == 0) {
+            let str = "メジャー - ";
+            if(appmp.system_selected === "Udonarium with Fly" && appo.general.withFly.declareWithBlooming) {
+                str += `「${objName}で${checkVehicleAttackType(i)}攻撃${appo.general.withFly.addExclamationWithDeclaration ? "！" : ""}」`;
+            } else {
+                str += `${objName}で${checkVehicleAttackType(i)}攻撃`;
+            }
+            declare.push(str.replace(/\r?\n/g, ''));
+        }
         result = result.concat(declare);
     }
     result = addSubHeadersAndFooterByTool("一般的な行動", result);
@@ -903,7 +939,7 @@ function makeActionsTextV3(objs) {
         if(!appo.arts.timing_auto && i.timing === "常時") { continue; }
         let s = "";
         if(i.timing) { s += `${i.timing} -`; }
-        s += makeObjectNameText(i, dictionary);
+        s += makeObjectNameText(i, dictionary, appo.general.withFly.declareWithBlooming && appo.general.withFly.addExclamationWithDeclaration);
         if("cost" in i) {
             if(appo.arts.include_cost && i.cost && i.timing !== "常時") {
                 if(appmp.system_selected === "ユドナリウムリリィ") {
@@ -964,7 +1000,7 @@ function makeOtherToolCostText(cost) {
 }
 
 // アーツ、アイテムの宣言名作成
-function makeObjectNameText(obj, dictionary = void(0)) {
+function makeObjectNameText(obj, dictionary = void(0), exclamation = false, bloomingBracket = true) {
     if(!obj || !obj.name) { return ""; }
     let str = "";
     let objName = obj.name;
@@ -972,9 +1008,23 @@ function makeObjectNameText(obj, dictionary = void(0)) {
     if(dictionary) {
         objName = pronouncingObjectNameText(obj, dictionary);
     }
+    // ツールごとに名称テンプレートを作成
+    let baseTemplate = JSON.parse(JSON.stringify(getDeclarationTemplate(appmp.system_selected)));
+    let template = "cost" in obj ? baseTemplate.arts : baseTemplate.items;
+    // Udonarium with Flyで「宣言文を吹き出しに対応させる」機能をONにしている場合
+    if(appmp.system_selected === "Udonarium with Fly" && appo.general.withFly.declareWithBlooming) {
+        // アーツ・アイテムを囲む括弧文字を除去するかの設定
+        if(appo.general.withFly.removeBracketWithDeclaration) { template = template.replace(/[『』《》]/g, ""); }
+        // 末尾に感嘆符を付け加えるかの設定
+        if(exclamation && !obj.name.match(/[！？!\?]$/)) { template += "！"; }
+        // 吹き出し用の鉤括弧でテンプレートを囲むか
+        if(bloomingBracket) {
+            template = `「${template}」`;
+        }
+    }
     // "cost"のkeyがあるかでアーツかどうかを判定
+    str = template.replace("%name%", objName);
     if("cost" in obj) {
-        str = `《${objName}》`;
         // アーツの場合、レベル表示設定も反映
         if(obj.level && !isNaN(parseInt(obj.level, 10))) {
             switch(appo.arts.display_level) {
@@ -987,8 +1037,6 @@ function makeObjectNameText(obj, dictionary = void(0)) {
                     str += `LV${parseInt(obj.level, 10)}`;
             }
         }
-    } else {
-        str = `「${objName}」`;
     }
     return str;
 }
@@ -1041,7 +1089,10 @@ function replacePronouncingText(obj, s) {
 function outputGeneralReactions(data) {
     if(!appo.advanced_order.usable["リアクション"]) { return ""; }
     // 基本的なデータを作成
-    let result = ["リアクション不可/放棄", "リアクション - ドッジ"];
+    let result = [
+        appmp.system_selected === "Udonarium with Fly" && appo.general.withFly.declareWithBlooming ? `「リアクションを放棄${appo.general.withFly.addExclamationWithDeclaration ? "！" : ""}」` : "リアクション不可/放棄",
+        appmp.system_selected === "Udonarium with Fly" && appo.general.withFly.declareWithBlooming ? `リアクション - 「ドッジ${appo.general.withFly.addExclamationWithDeclaration ? "！" : ""}」` : "リアクション - ドッジ"
+    ];
     // ルビ振りのチェックが入っているかどうかを確認
     let dictionary = makeConvertListWithRuby();
     // 武器データからガード値データを取得
@@ -1051,11 +1102,19 @@ function outputGeneralReactions(data) {
         let b = [...separateBeastFormula(i.guard, mode="b").matchAll(/[\+\-\d]+/g)].reduce((acc, cur) => parseInt(acc,10)+parseInt(cur,10), 0);
         let str_h = "";
         let str_b = "";
+        let templateH, templateB;
+        if(appmp.system_selected === "Udonarium with Fly" && appo.general.withFly.declareWithBlooming) {
+            templateH = `リアクション - 「%name%でガード${appo.general.withFly.addExclamationWithDeclaration ? "！" : ""}」（ガード値：%guard%）`;
+            templateB = `リアクション - 「%name%でガード${appo.general.withFly.addExclamationWithDeclaration ? "！" : ""}」【魔獣化中】（ガード値：%guard%）`;
+        } else {
+            templateH = `リアクション - %name%でガード（ガード値：%guard%）`;
+            templateB = `リアクション - %name%でガード【魔獣化中】（ガード値：%guard%）`;
+        }
         if(h) {
-            str_h = `リアクション - ${makeObjectNameText(i, dictionary)}でガード（ガード値：${h}）`.replace(/\r?\n/g, '');
+            str_h = templateH.replace("%name%", makeObjectNameText(i, dictionary, false, false)).replace("%guard%", h).replace(/\r?\n/g, "");
         }
         if(b) {
-            str_b = `リアクション - ${makeObjectNameText(i, dictionary)}でガード【魔獣化中】（ガード値：${b}）`.replace(/\r?\n/g, '');
+            str_b = templateB.replace("%name%", makeObjectNameText(i, dictionary, false, false)).replace("%guard%", b).replace(/\r?\n/g, "");
         }
         if(i.type && i.type.match(/魔獣/)) {
             str_h = "";
@@ -1147,7 +1206,7 @@ function makeDamageRollTextV3(text, params, obj, attr, mode="h") {
     let str = separateBeastFormula(text, mode, obj).replace(/\+{2,}/g, "+") + " ";
     if(appmp.system_selected === "TRPGスタジオ") { str = "/d " + str; }
     // 説明用テキストの出力
-    let note = makeObjectNameText(obj);
+    let note = makeObjectNameText(obj, null, false, false);
     if(mode === "b") { note += "【魔獣化中】"; }
     if(attr) { note += `／〈${abilityName(attr, "j")}〉属性`; }
     if("attack" in obj && appo.damagerolls.include_note && obj.notes) { note += `：${obj.notes}`; }

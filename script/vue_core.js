@@ -4,7 +4,7 @@ const App_mainprocess = Vue.createApp({
         return {
             sheet_url: "",
             system_selected: "なし",
-            systems: ["なし", "ココフォリア", "ユドナリウム", "ユドナリウムリリィ","TRPGスタジオ", "Tekey", "Quoridorn"],
+            systems: ["なし", "ココフォリア", "ユドナリウム", "ユドナリウムリリィ", "Udonarium with Fly", "ユドナリウム（ルビ対応）", "TRPGスタジオ", "Tekey", "Quoridorn"],
             main_data: {},
             main_data_name: "",
             main_data_url: "",
@@ -17,13 +17,13 @@ const App_mainprocess = Vue.createApp({
                 alert("キャラクターシートのURLを入力してください。（URL短縮サービスでのURLは使用できません。）");
                 return;
             }
-            console.log("シートURLと一時保存URLの比較", this.sheet_url === this.main_data_url);
+            // console.log("シートURLと一時保存URLの比較", this.sheet_url === this.main_data_url);
             if(this.main_data && this.main_data_url === this.sheet_url) {
-                console.log("一時データから再読み込み");
+                // console.log("一時データから再読み込み");
                 convert(this.main_data, true);
                 return;
             }
-            console.log("キャラクターシート倉庫から読み込み");
+            // console.log("キャラクターシート倉庫から読み込み");
             this.main_data_url = JSON.parse(JSON.stringify(this.sheet_url));
             let key = (location.protocol === "https:" ? "https:" : "http:") + "//character-sheets.appspot.com/bbt/display?ajax=1&key=" + this.sheet_url.split(/key=/)[1] + "&base64Image=1";
             // console.log(key);
@@ -38,32 +38,41 @@ const App_mainprocess = Vue.createApp({
                   reserved: false,  // 予約語の機能に対応しているかの設定。していなければ最後にデータを置換する
                 param_pone: false,  // 駒にステータス/パラメータを紐付けるかの設定。
              param_palette: false,  // チャットパレットに予約語を記載できるシステムかどうかの設定。
-                  cite_hum: false   // 人間性の引用が可能かどうかの設定。falseなら%{人間性}の記載を省略
+                  cite_hum: false,  // 人間性の引用が可能かどうかの設定。falseなら%{人間性}の記載を省略
+            pone_generator: false,  // 駒出力機能に対応しているかどうかの設定。
+              auto_payment: false,  // コストの自動支払いに対応しているかどうかの設定。
+             resource_ctrl: false,  // リソース操作コマンドを出力するかどうかの設定
+            abilities_list: false   // 能力値一覧を表示するツールであるかどうかの設定
             };
             switch(this.system_selected) {
                 case "ココフォリア":
-                    Object.assign(result, {reserved: true, param_pone: true, cite_hum: true});
+                    Object.assign(result, {reserved: true, param_pone: true, cite_hum: true, pone_generator: true, resource_ctrl: true});
                     break;
                 case "ユドナリウム":
-                    Object.assign(result, {reserved: true, param_pone: true, param_palette: true, cite_hum: true});
+                    Object.assign(result, {reserved: true, param_pone: true, param_palette: true, cite_hum: true, pone_generator: true, abilities_list: true});
                     break;
                 case "ユドナリウムリリィ":
-                    Object.assign(result, {reserved: true, param_pone: true, param_palette: true, cite_hum: true});
+                    Object.assign(result, {reserved: true, param_pone: true, param_palette: true, cite_hum: true, pone_generator: true, auto_payment: true, resource_ctrl: true, abilities_list: true});
+                    break;
+                case "Udonarium with Fly":
+                    Object.assign(result, {reserved: true, param_pone: true, param_palette: true, cite_hum: true, pone_generator: true, abilities_list: true});
                     break;
                 case "TRPGスタジオ":
                     Object.assign(result, {prefix: "/ "});
                     break;
                 case "Tekey":
-                    Object.assign(result, {reserved: true, param_palette: true, cite_hum: true});
+                    Object.assign(result, {reserved: true, param_palette: true, cite_hum: true, abilities_list: true});
                     break;
                 case "Quoridorn":
-                    Object.assign(result, {reserved: true, param_palette: true, cite_hum: true});
+                    Object.assign(result, {reserved: true, param_palette: true, cite_hum: true, abilities_list: true});
                     break;
             }
             return result;
         },
         copy_system_tool() {
             appo.general.session_tool = this.system_selected;
+            // 「ユドナリウム（ルビ対応）」が選択された場合、ルビ振りには自動的にチェックを入れる。そうでないなら外す
+            appo.general.pronouncing = this.system_selected === "ユドナリウム（ルビ対応）" ? true : false;
         },
         initialize_charactersheet_data() {
             this.main_data = {};
@@ -110,7 +119,12 @@ const App_options = Vue.createApp({
                 output_pone_immediately: false,
                 output_judgeTextCalculated: true,
                 fumbleArtsCheckBeforeOutput: false,
-                pronouncing: false
+                pronouncing: false,
+                withFly: {
+                    declareWithBlooming: false,
+                    addExclamationWithDeclaration: true,
+                    removeBracketWithDeclaration: false
+                }
             },
             arts: {
                 timing_empty: true,
@@ -380,15 +394,17 @@ const App_options = Vue.createApp({
             udonarium_outputStatusAndParams(appmp.main_data, mode);
         },
         ignitePoneGenerator() {
-            console.log("check ignitePoneGenerator");
+            // console.log("check ignitePoneGenerator");
             switch(this.general.session_tool) {
                 case "ココフォリア":
-                    console.log("ccfolia PoneGenerator");
+                    // console.log("ccfolia PoneGenerator");
                     this.ccfolia_pone.completedText = poneGenerator_ccfolia(appmp.main_data);
                     break;
                 case "ユドナリウム":
                 case "ユドナリウムリリィ":
-                    console.log("Udonarium PoneGenerator");
+                case "Udonarium with Fly":
+                case "ユドナリウム（ルビ対応）":
+                    // console.log("Udonarium PoneGenerator");
                     poneGenerator_udonarium(appmp.main_data);
                     break;
             }
@@ -455,13 +471,19 @@ const App_options = Vue.createApp({
             ];
         },
         hasPoneGenerator() {
-            return this.general.session_tool.match(/(ユドナリウム|ココフォリア)/);
+            return this.general.session_tool.match(/(ユドナリウム|ココフォリア|Udonarium)/);
         },
         allowPoneGenerator() {
             return appmp.main_data_name && this.palette && this.hasPoneGenerator;
         },
         hasRubyData() {
             return Object.keys(RUBY_TEMPLATE).includes(this.general.session_tool);
+        },
+        checkToolAbilities() {
+            return appmp.system_config();
+        },
+        withFlyBloomingOpacity() {
+            return this.general.withFly.declareWithBlooming ? 1 : 0.25;
         }
     }
 });

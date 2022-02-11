@@ -164,7 +164,8 @@
                         </li>
                         <li>「使用ツール」から、使用予定のオンラインセッションツールを選択する。
                             <ul>
-                                <li>選択できるのは<strong class="w3-text-red">「ココフォリア」「ユドナリウム」「ユドナリウムリリィ」「TRPGスタジオ」「Tekey」「Quoridorn」</strong>の6種。</li>
+                                <li>選択できるのは<strong class="w3-text-red">「ココフォリア」「ユドナリウム」「ユドナリウムリリィ」「ユドナリウム（ルビ対応）」「TRPGスタジオ」「Tekey」「Quoridorn」</strong>の7種。</li>
+                                <li>「ユドナリウム（ルビ対応）」は、「ユドナリウム」通常の出力に、ルビ振り機能のみを追加したものです。「Udonarium with Fly」「Udonarium Blue」等に対応した出力です。</li>
                                 <li>該当するものがない場合は「なし」を選択すること。</li>
                             </ul>
                         </li>
@@ -196,7 +197,7 @@
                     出力する項目と順序の設定
                 </p>
                 <div class="w3-container" v-show="show.sec_order">
-                    <div style="display: flex; flex-wrap: wrap;">
+                    <div style="display: flex; flex-wrap: wrap; align-items: flex-start;">
                         <table class="poneSet_table w3-small" border="1">
                             <thead>
                                 <tr class="w3-teal">
@@ -237,65 +238,88 @@
                             <li>「操作」ボタンで順序を入れ替えることもできます。</li>
                             <li>一部の項目は、対応するオンラインセッションツールを選択している場合のみ出力されます。
                                 <ul>
-                                    <li v-if="['ユドナリウムリリィ', 'ユドナリウム', 'ココフォリア'].includes(system_selected())" class="w3-text-blue" style="font-weight:bold;">
+                                    <li v-if="checkToolAbilities.pone_generator" class="w3-text-blue" style="font-weight:bold;">
                                         このセッションツールでは、駒データの出力が可能です。
                                     </li>
-                                    <li v-if="['ユドナリウムリリィ'].includes(system_selected())" class="w3-text-blue" style="font-weight:bold;">
+                                    <li v-if="checkToolAbilities.auto_payment" class="w3-text-blue" style="font-weight:bold;">
                                         このセッションツールでは、登場時の人間性低下・アーツコストを宣言と同時に支払います。
                                     </li>
-                                    <li v-if="!['ユドナリウムリリィ', 'ユドナリウム', 'Tekey', 'Quoridorn'].includes(system_selected())" class="w3-text-red" style="font-weight:bold;">
+                                    <li v-if="!checkToolAbilities.abilities_list" class="w3-text-red" style="font-weight:bold;">
                                         「能力値一覧」は、このセッションツールでは出力されません。
+                                        <span v-if="checkToolAbilities.param_pone">（不要のため省略されています）</span>
                                     </li>
-                                    <li v-if="!['ユドナリウムリリィ', 'ココフォリア'].includes(system_selected())" class="w3-text-red" style="font-weight:bold;">
+                                    <li v-if="checkToolAbilities.abilities_list && checkToolAbilities.param_pone" class="w3-text-red" style="font-weight:bold;">
+                                        「能力値一覧」は、このセッションツールでは出力されますが、表示される項目は、一部に限られます。</span>
+                                    </li>
+                                    <li v-if="!checkToolAbilities.resource_ctrl" class="w3-text-red" style="font-weight:bold;">
                                         「リソース操作」は、このセッションツールでは出力されません。
                                     </li>
-                                    <li v-if="['なし', 'TRPGスタジオ'].includes(system_selected())" class="w3-text-red" style="font-weight:bold;">
+                                    <li v-if="!checkToolAbilities.param_palette && !checkToolAbilities.param_pone" class="w3-text-red" style="font-weight:bold;">
                                         このセッションツールでは、パレット中の【能力値】は直接数値で記載されます。
                                     </li>
-                                    <li v-if="hasRubyData">
-                                        <label class="hover-pointer">
-                                            <input type="checkbox" v-model="general.pronouncing" style="margin-right:0.25em;vertical-align:middle;">
-                                            アーツ・アイテムの使用テキストに、特殊な読み方をするデータにルビ（振り仮名）を振る
-                                        </label>
+                                </ul>
+                            </li>
+                            <li style="margin-top: 1em;">選択中のオンラインセッションツールに固有の設定項目があれば、この下に表示されます。
+                                <ul>
+                                    <li v-if="hasRubyData" class="w3-text-teal pl-box-border"><strong>振り仮名機能のあるツールに関する設定</strong>
+                                        <ul class="w3-text-black pl-tool-option-list">
+                                            <li>
+                                                <label class="hover-pointer w3-hover-pale-green">
+                                                    <input type="checkbox" v-model="general.pronouncing">
+                                                    アーツ・アイテムの使用テキストに、特殊な読み方をするデータにルビ（振り仮名）を振る
+                                                </label>
+                                            </li>
+                                            <li>※対応するデータについては、<a href="patchnotes.html#ruby" target="_blank" class="w3-hover-pale-blue" style="margin: 0 0.5em;">PatchNotes</a>をご確認ください。</li>
+                                        </ul>
+                                    </li>
+                                    <li v-if="general.session_tool==='Udonarium with Fly'" class="w3-text-teal pl-box-border"><strong>Udonarium with Fly：吹き出し関連の設定</strong>
+                                        <ul class="w3-text-black pl-tool-option-list">
+                                            <li>
+                                                <label class="hover-pointer w3-hover-pale-green">
+                                                    <input type="checkbox" v-model="general.withFly.declareWithBlooming">
+                                                    使用宣言文のアーツ・アイテム名を<strong class="w3-pale-blue" style="margin:0 0.25em;padding:0 0.25em;">「　」</strong>で囲み、吹き出し表示の対象にする
+                                                </label>
+                                            </li>
+                                            <li :style="{opacity: withFlyBloomingOpacity}">
+                                                <label class="hover-pointer w3-hover-pale-green">
+                                                    <input type="checkbox" v-model="general.withFly.addExclamationWithDeclaration">
+                                                    使用宣言の末尾に「！」を加える（アーツ名等の末尾が感嘆符の場合を除く）
+                                                </label>
+                                            </li>
+                                            <li :style="{opacity: withFlyBloomingOpacity}">
+                                                <label class="hover-pointer w3-hover-pale-green">
+                                                    <input type="checkbox" v-model="general.withFly.removeBracketWithDeclaration">
+                                                    アーツ・アイテム名の表示にあたって、<strong class="w3-pale-blue" style="margin:0 0.25em;padding:0 0.25em;">《 》</strong>や<strong class="w3-pale-blue" style="margin:0 0.25em;padding:0 0.25em;">『 』</strong>で囲まない
+                                                </label>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li v-if="checkToolAbilities.pone_generator" class="w3-text-teal pl-box-border"><strong>キャラクター駒出力に関する設定</strong>
+                                        <ul class="w3-text-black pl-tool-option-list">
+                                            <li>
+                                                <label class="hover-pointer w3-hover-pale-green">
+                                                    <input type="checkbox" v.model="general.reOutput_pone_params">
+                                                    チャットパレットを「再出力」する時、駒に紐づけるステータス／パラメータを都度初期化する
+                                                </label>
+                                            </li>
+                                            <li>
+                                                <label class="hover-pointer w3-hover-pale-green">
+                                                    <input type="checkbox" v.model="general.output_pone_immediately">
+                                                    チャットパレットを「出力」する時、即座に駒データも出力する
+                                                </label>
+                                            </li>
+                                            <li v-if="general.session_tool.match(/ユドナリウム|Udonarium/)">
+                                                <label class="hover-pointer w3-hover-pale-green">
+                                                    <input type="checkbox" v.model="general.output_beastActionUdonarium">
+                                                    《魔獣化》中の【行動値】を、「魔動」の名前で駒に実数値として紐付ける
+                                                </label>
+                                            </li>
+                                        </ul>
                                     </li>
                                 </ul>
                             </li>
                         </ul>
                     </div>
-                    <ul>
-                        <li style="list-style-type:none; margin-top:1em;" v-if="hasPoneGenerator">
-                            <strong>キャラクター駒出力に関するオプション群</strong>
-                            <ul>
-                                <li style="margin-top:0.75em;">駒出力全般に関するオプション
-                                    <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
-                                        <li>
-                                            <label>
-                                                <input type="checkbox" v-model="general.reOutput_pone_params" style="vertical-align:middle; margin-right:0.5em;">
-                                                チャットパレットを「再出力」する時、駒に紐づけるステータス／パラメータを都度初期化する
-                                            </label>
-                                        </li>
-                                        <li>
-                                            <label>
-                                                <input type="checkbox" v-model="general.output_pone_immediately" style="vertical-align:middle; margin-right:0.5em;">
-                                                チャットパレットを「出力」する時、即座に駒データも出力する
-                                            </label>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li v-if="general.session_tool.match(/ユドナリウム/)" style="margin-top:0.75em;">
-                                    ユドナリウム系セッションツールに関するオプション
-                                    <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
-                                        <li>
-                                            <label>
-                                                <input type="checkbox" v-model="general.output_beastActionUdonarium" style="vertical-align:middle; margin-right:0.5em;">
-                                                《魔獣化》中の【行動値】を、「魔動」の名前で駒に実数値として紐付ける
-                                            </label>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
                 </div>
 
                 <!-- 基本的な出力のオプション -->
@@ -306,12 +330,12 @@
                     基本的な判定のオプション
                 </p>
                 <div class="w3-container" v-show="show.sec_gen">
-                    <ul style="margin-top: 1em;">
-                        <li style="list-style-type: none;">判定式の出力全般
-                            <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
+                    <ul class="w3-small">
+                        <li style="margin-bottom: 1em;"><strong class="w3-text-teal">判定式の出力全般</strong>
+                            <ul class="pl-box-border" style="margin-left: 0; line-height: 1.7em;">
                                 <li>
-                                    <label>
-                                        <input type="checkbox" v-model="general.output_resistFalldown" style="vertical-align:middle; margin-right:0.5em;">
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" v-model="general.output_resistFalldown">
                                         「堕落判定」向けの判定行を設け、キャラクターに紐付けるステータスに「絆数」を追加する
                                     </label>
                                     <span class="c-tooltip w3-text-indigo" data-tooltip="キャラクター駒の情報に 絆数 を追加し、堕落判定の判定式を自動出力するかどうかを設定できます。この設定を使用する場合、「思い出の品」の効果欄には [絆数D6] と書くのもよいでしょう。">
@@ -319,8 +343,8 @@
                                     </span>
                                 </li>
                                 <li>
-                                    <label>
-                                        <input type="checkbox" v-model="general.output_judgeTextCalculated" style="vertical-align:middle; margin-right:0.5em;">
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" v-model="general.output_judgeTextCalculated">
                                         判定式を出力する時は、可能な限り計算したものを出力する
                                     </label>
                                     <span class="c-tooltip w3-text-indigo" data-tooltip="判定式が 肉体+2+2 のような書き方をされている場合に、これを {肉体}+4 など可能な限り加減算をまとめたものを表示するかどうかを決めることができます。">
@@ -328,8 +352,8 @@
                                     </span>
                                 </li>
                                 <li>
-                                    <label>
-                                        <input type="checkbox" v-model="general.fumbleArtsCheckBeforeOutput" style="vertical-align:middle; margin-right:0.5em;">
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" v-model="general.fumbleArtsCheckBeforeOutput">
                                         「汎用クリティカル値・ファンブル値の設定」を自動入力する
                                     </label>
                                     <span class="c-tooltip w3-text-indigo" data-tooltip="「各【能力値】判定＆堕落判定への個別の修正」内のオプション、「汎用クリティカル値・ファンブル値の設定」で指定できるデータがある場合、自動的にチェックを入れます。アーツ名が正確でなかったり、記号が半角で入力されていると、アーツを取得していても検索できない場合があります。">
@@ -337,6 +361,9 @@
                                     </span>
                                 </li>
                                 <li>
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" disabled style="opacity: 0;">
+                                    </label>
                                     判定式の並べ替え基準：
                                     <select v-model="general.sort_type" style="margin-right:1em;">
                                         <option v-for="t in general.option_sort_type" :value="t">{{t}}</option>
@@ -348,9 +375,12 @@
                                 <span class="w3-small w3-text-red prebr" style="margin-left: 1em;">{{general_sort_type_description}}</span>
                             </ul>
                         </li>
-                        <li style="list-style-type: none; margin-top: 0.75em;">アーツ「判定値」欄からの出力
-                            <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
+                        <li style="margin-bottom: 1em;"><strong class="w3-text-teal">アーツ「判定値」欄からの出力</strong>
+                            <ul class="pl-box-border" style="margin-left: 0; line-height: 1.7em;">
                                 <li>
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" disabled style="opacity: 0;">
+                                    </label>
                                     出力する判定式の選別：
                                     <select v-model="arts.judge_type" style="margin-right:1em;">
                                         <option v-for="t in arts.option_judge_type" :value="t">{{t}}</option>
@@ -362,9 +392,13 @@
                                 <span class="w3-small w3-text-red prebr" style="margin-left: 1em;">{{judge_arts_description}}</span>
                             </ul>
                         </li>
-                        <li style="list-style-type: none; margin-top: 0.75em;">武器「命中」欄からの出力
-                            <ul class="w3-pale-yellow w3-round w3-border w3-border-amber pl-optionChild">
-                                <li>出力する判定式の選別：
+                        <li style="margin-bottom: 1em;"><strong class="w3-text-teal">武器「命中」欄からの出力</strong>
+                            <ul class="pl-box-border" style="margin-left: 0; line-height: 1.7em;">
+                                <li>
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" disabled style="opacity: 0;">
+                                    </label>
+                                    出力する判定式の選別：
                                     <select v-model="damagerolls.judge_type" style="margin-right: 1em;">
                                         <option v-for="t in damagerolls.option_judge_type" :value="t">{{t}}</option>
                                     </select>
@@ -373,6 +407,9 @@
                                     </span>
                                 </li>
                                 <li>
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" disabled style="opacity: 0;">
+                                    </label>
                                     命中欄が符号のない整数の場合：
                                     <label v-for="t in damagerolls.option_judge_head" style="margin-right: 1em;">
                                         <input type="radio" v-model="damagerolls.judge_head_number" :value="t">
@@ -415,41 +452,47 @@
                     アーツ・アイテムデータの出力
                 </p>
                 <div class="w3-container" v-show="show.sec_arts">
-                    <ul style="list-style-type:none; margin-top:0;">
-                        <li>
-                            <label class="r-margin">
-                                <input type="checkbox" v-model="arts.timing_empty">
-                                「タイミング」が空欄のアーツ・アイテムを出力テキストに含める
-                            </label>
-                        </li>
-                        <li>
-                            <label class="r-margin afterbr">
-                                <input type="checkbox" v-model="arts.timing_auto">
-                                「タイミング」が「常時」のアーツ・アイテムを出力テキストに含める
-                            </label>
-                        </li>
-                        <li>
-                            <label class="r-margin afterbr">
-                                <input type="checkbox" v-model="arts.include_cost">
-                                アーツの「コスト」を出力テキストに含める
-                            </label>
-                        </li>
-                        <li>
-                            <label class="r-margin afterbr">
-                                <input type="checkbox" v-model="arts.include_note">
-                                アーツやアイテムの「効果」を出力テキストに含める
-                            </label>
-                        </li>
-                        <li>
-                            <input type="checkbox" disabled style="opacity:0; margin-right:0.5em;">
-                            アーツレベルの表示：
-                            <label class="r-margin" v-for="t in arts.option_display_level" style="margin-right: 1em;">
-                                <input type="radio" v-model="arts.display_level"  :value="t">
-                                {{t}}
-                            </label>
-                            <span class="c-tooltip w3-text-indigo" data-tooltip="アーツのLV欄の中身を評価し、数値化したものをもとに表示します。「1●」などの文字列を含む表記は、文字列以降の部分がすべて無視されます。">
-                                <i class="fas fa-question-circle"></i>
-                            </span>
+                    <ul class="w3-small">
+                        <li class="w3-text-teal"><strong>アーツ・アイテムデータ宣言文の出力</strong>
+                            <ul class="pl-box-border w3-text-black" style="margin-left: 0; line-height: 1.7em;">
+                                <li>
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" v-model="arts.timing_empty">
+                                        「タイミング」が空欄のアーツ・アイテムを出力テキストに含める
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" v-model="arts.timing_auto">
+                                        「タイミング」が「常時」のアーツ・アイテムを出力テキストに含める
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" v-model="arts.include_cost">
+                                        アーツの「コスト」を出力テキストに含める
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" v-model="arts.include_note">
+                                        アーツやアイテムの「効果」を出力テキストに含める
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" disabled style="opacity:0;">
+                                    </label>
+                                    アーツレベルの表示：
+                                    <label class="r-margin" v-for="t in arts.option_display_level" style="margin-right: 1em;">
+                                        <input type="radio" v-model="arts.display_level"  :value="t">
+                                        {{t}}
+                                    </label>
+                                    <span class="c-tooltip w3-text-indigo" data-tooltip="アーツのLV欄の中身を評価し、数値化したものをもとに表示します。「1●」などの文字列を含む表記は、文字列以降の部分がすべて無視されます。">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
 
@@ -488,14 +531,24 @@
                     武器・ダメージロールデータの出力
                 </p>
                 <div class="w3-container" v-show="show.sec_damage">
-                    <label class="r-margin afterbr">
-                        <input type="checkbox" v-model="damagerolls.include_note">
-                        武器のダメージロールに「備考」欄の内容もあわせて出力する
-                    </label>
-                    <label class="r-margin afterbr">
-                        <input type="checkbox" v-model="damagerolls.include_sp_attack">
-                        アーツ効果欄に<b>[ ]</b>で囲まれた部分をダメージロールとして出力する
-                    </label>
+                    <ul class="w3-small">
+                        <li class="w3-text-teal"><strong>武器・ダメージロールデータの出力</strong>
+                            <ul class="pl-box-border w3-text-black" style="margin-left: 0; line-height: 1.7em;">
+                                <li>
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" v-model="damagerolls.include_note">
+                                        武器のダメージロールに「備考」欄の内容もあわせて出力する
+                                    </label>
+                                </li>
+                                <li>
+                                    <label class="hover-pointer">
+                                        <input type="checkbox" v-model="damagerolls.include_sp_attack">
+                                        アーツ効果欄に<b>[ ]</b>で囲まれた部分をダメージロールとして出力する
+                                    </label>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
                     <p style="margin-top:1em; font-weight:bold;" class="w3-small w3-border w3-light-grey explain-box">
                         ダメージロール式の書き方はユーザーによって書き方に幅が大きく、すべてに対応することができません。必ず出力された式を確認し、必要に応じて修正してください。<br>
                         ダメージロール式作成について、書き方の詳細は
@@ -792,12 +845,12 @@
                     </button>
                     チャットパレットデータ
                 </p>
-                <div style="margin-top:1em;">
-                    <button class="clipbtn w3-round w3-indigo w3-hover-blue" style="font-weight:bold;" data-clipboard-target="#palette-converter-result">
-                        チャットパレットデータをコピー
-                    </button>
-                </div>
                 <div class="w3-container" v-show="show.sec_palette">
+                    <div style="margin-bottom: 0.5em;">
+                        <button class="clipbtn w3-round w3-indigo w3-hover-blue" style="font-weight:bold;" data-clipboard-target="#palette-converter-result">
+                            チャットパレットデータをコピー
+                        </button>
+                    </div>
                     <div class="w3-panel w3-pale-red w3-leftbar w3-border-red w3-small w3-padding-8" style="font-weight:bold;" v-show="palette_hasError">
                         チャットパレット作成時に、正常に作成できなかった式があります。チャットパレットの内容を確認してください。<br>
                         <ul style="margin: 0.5em;">
@@ -812,7 +865,7 @@
 
         <!-- キャラクター駒作成機能：ユドナリウム -->
         <transition>
-            <div class="w3-container" style="margin: 1em 0em;" v-show="allowPoneGenerator && general.session_tool.match(/ユドナリウム/)">
+            <div class="w3-container" style="margin: 1em 0em;" v-show="allowPoneGenerator && general.session_tool.match(/ユドナリウム|Udonarium/)">
                 <!-- ユドナリウム（リリィ含む） -->
                 <p class="w3-container w3-leftbar w3-border-bottom w3-border-teal" style="font-weight:bold;">
                     <button class="w3-teal w3-hover-green" @click="show.pone.udona = !show.pone.udona" style="margin-right:1em;">
