@@ -70,10 +70,22 @@
                         </button>
                     </div>
                 </div>
+                <div class="w3-small">
+                    <label class="w3-hover-pale-green" style="display: flex; align-items: center; cursor: pointer; user-select: none; padding: 0.25em;">
+                        <input type="checkbox" v-model="save_options" style="margin-right: 0.5em">
+                        <span>出力時のオプションを保存</span>
+                        <span v-if="save_options">する</span>
+                        <span v-else>せず、削除する</span>
+                    </label>
+                </div>
             </div>
             <!-- スマートフォン用 -->
             <div class="accordion w3-hide-large">
-                <div class="accordion-title w3-blue w3-hover-indigo" @click="menu_display = !menu_display">
+                <div
+                    class="accordion-title w3-blue w3-hover-indigo"
+                    style="cursor: pointer; user-select: none;"
+                    @click="menu_display = !menu_display"
+                >
                     Palette Converter メニューを
                     <span v-if="menu_display">閉じる</span>
                     <span v-else>開く</span>
@@ -126,6 +138,18 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td colspan="2">
+                                    <label
+                                        class="w3-border w3-hover-khaki w3-round"
+                                        style="display: flex; align-items: center; cursor: pointer; padding: 0.5em; user-select: none;"
+                                    >
+                                        <input type="checkbox" v-model="save_options" style="margin-right: 0.5em;">
+                                        <span v-if="save_options">出力時のオプションを保存する</span>
+                                        <span v-else>出力時のオプションを保存せず、削除する</span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td colspan="2" class="w3-small w3-border w3-round-large" style="padding: 1em;">
                                     《変換 -Palette Converter-》は、<a href="https://character-sheets.appspot.com/" target="_blank" class="w3-hover-blue">キャラクターシート倉庫</a>に保存されたBBTのキャラクターシートから、各種オンラインセッションツールで使用するチャットパレットを生成する準備支援ツールです。
                                 </td>
@@ -156,7 +180,7 @@
                         </span>
                         <span style="margin-left: 0.5em;">にカーソルを合わせると、簡単なヘルプが表示されます。</span>
                     </div>
-                    <ol>
+                    <ol class="converter_howtouse">
                         <li>上の「キャラクターシート倉庫URL」の欄に、チャットパレットに変換したいキャラクターシートのURLを入力する。
                             <ul>
                                 <li>この時、短縮URLサービスのURLは使用できない。</li>
@@ -184,6 +208,13 @@
                                 <li>データが保持されている間は、「読み込み中：●●」というキャラクターシートの名前が上に表示される。</li>
                                 <li>シート側を更新した等でデータを取得し直したい場合は「読み込み中データ破棄」のボタンをクリックすると、保持されていたデータが消去される。</li>
                                 <li>また、「キャラクターシート倉庫URL」の欄を変更すると、「読み込み中データ破棄」と同等の処理が行われる。</li>
+                            </ul>
+                        </li>
+                        <li>「出力時のオプションを保存～」にチェックを入れた状態で出力を行うと、選択していたオプションが保存され、次にページを開いた時の初期設定に反映される。
+                            <ul>
+                                <li>この機能はlocalStorage変数の機能を用いているため、プライベートブラウジング／シークレットウィンドウモードでは動作しない可能性があります。</li>
+                                <li>チェックを外した状態で出力を行うと、保存されていたデータが削除されます。</li>
+                                <li>スマートフォン等での動作確認は行っていないことをご了承ください。</li>
                             </ul>
                         </li>
                     </ol>

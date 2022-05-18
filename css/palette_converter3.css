@@ -179,6 +179,13 @@ label.hover-pointer input[type="checkbox"] {
     left: -3em;
 }
 
+ol.converter_howtouse > li {
+    margin-bottom: 1em;
+}
+ol.converter_howtouse > li:last-child {
+    margin-bottom: 0em;
+}
+
 /* アコーディオンメニュー */
 @keyframes open {
     0% {

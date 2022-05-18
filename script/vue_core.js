@@ -8,8 +8,17 @@ const App_mainprocess = Vue.createApp({
             main_data: {},
             main_data_name: "",
             main_data_url: "",
-            menu_display: false
+            menu_display: false,
+            save_options: false
         };
+    },
+    mounted: function() {
+        // localStorageをチェックし、可能なものはデータを反映する
+        const VoidBarrelMain = localStorage.getItem("void-barrel-main");
+        console.log("VoidBarrelMain", JSON.parse(VoidBarrelMain));
+        if(VoidBarrelMain) {
+            Object.assign(this, JSON.parse(VoidBarrelMain));
+        }
     },
     methods: {
         process_button() {
@@ -206,6 +215,13 @@ const App_options = Vue.createApp({
                 completedText: ""
             }
         };
+    },
+    mounted: function() {
+        const VoidBarrelSub = localStorage.getItem("void-barrel-sub");
+        console.log("VoidBarrelSub", JSON.parse(VoidBarrelSub));
+        if(VoidBarrelSub) {
+            Object.assign(this, JSON.parse(VoidBarrelSub));
+        }
     },
     methods: {
         system_selected() {

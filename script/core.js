@@ -175,6 +175,8 @@ function convert(data, cache=false) {
     let boxChatPaletteOutput = document.getElementById("chatPaletteOutput");
     let content_position = boxChatPaletteOutput.getBoundingClientRect();
     window.scrollBy({top: content_position.top, behavior: "smooth"});
+    // localStorage変数にデータを保存
+    saveOutputOptionsToLocalStorage();
     // キャラクター駒作成の処理へ
     initializePoneConverter(appmp.main_data, cache);
     // 即時発火チェック
@@ -1554,4 +1556,29 @@ function poneGenerator_udonarium(data) {
     zip.generateAsync({type:"blob"}).then(function(content) {
         saveAs(content, `${data.base.name}.zip`);
     });
+}
+
+// 出力オプションの保存
+function saveOutputOptionsToLocalStorage() {
+    // 保存オプションがOFFなら、データを消去
+    console.log("appmp.save_options", appmp.save_options);
+    if(!appmp.save_options) {
+        localStorage.removeItem("void-barrel-main");
+        localStorage.removeItem("void-barrel-sub");
+        return;
+    }
+    // appmpのデータを保存
+    const SaveDataMain = {
+        system_selected: appmp.system_selected,
+        save_options: true
+    };
+    localStorage.setItem("void-barrel-main", JSON.stringify(SaveDataMain));
+    // appoのデータを保存
+    let SaveDataOptions = {
+        general: appo.general,
+        arts: appo.arts,
+        damagerolls: appo.damagerolls,
+        advanced_order: appo.advanced_order
+    };
+    localStorage.setItem("void-barrel-sub", JSON.stringify(SaveDataOptions));
 }
