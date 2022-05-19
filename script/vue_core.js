@@ -14,10 +14,14 @@ const App_mainprocess = Vue.createApp({
     },
     mounted: function() {
         // localStorageをチェックし、可能なものはデータを反映する
-        const VoidBarrelMain = localStorage.getItem("void-barrel-main");
-        console.log("VoidBarrelMain", JSON.parse(VoidBarrelMain));
-        if(VoidBarrelMain) {
-            Object.assign(this, JSON.parse(VoidBarrelMain));
+        try {
+            const VoidBarrelMain = localStorage.getItem("void-barrel-main");
+            console.log("VoidBarrelMain", JSON.parse(VoidBarrelMain));
+            if(VoidBarrelMain) {
+                Object.assign(this, JSON.parse(VoidBarrelMain));
+            }
+        } catch (error) {
+            console.log(error);
         }
     },
     methods: {
@@ -217,10 +221,14 @@ const App_options = Vue.createApp({
         };
     },
     mounted: function() {
-        const VoidBarrelSub = localStorage.getItem("void-barrel-sub");
-        console.log("VoidBarrelSub", JSON.parse(VoidBarrelSub));
-        if(VoidBarrelSub) {
-            Object.assign(this, JSON.parse(VoidBarrelSub));
+        try {
+            const VoidBarrelSub = localStorage.getItem("void-barrel-sub");
+            console.log("VoidBarrelSub", JSON.parse(VoidBarrelSub));
+            if(VoidBarrelSub) {
+                Object.assign(this, JSON.parse(VoidBarrelSub));
+            }   
+        } catch (error) {
+            console.log(error);
         }
     },
     methods: {

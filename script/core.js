@@ -1563,22 +1563,32 @@ function saveOutputOptionsToLocalStorage() {
     // 保存オプションがOFFなら、データを消去
     console.log("appmp.save_options", appmp.save_options);
     if(!appmp.save_options) {
-        localStorage.removeItem("void-barrel-main");
-        localStorage.removeItem("void-barrel-sub");
-        return;
+        try {
+            localStorage.removeItem("void-barrel-main");
+            localStorage.removeItem("void-barrel-sub");
+            return;
+        } catch (error) {
+            console.log("saveOutputOptionsToLocalStorage/eraser: Error", error)
+            return;
+        }
     }
-    // appmpのデータを保存
+    // appmpの保存データを作成
     const SaveDataMain = {
         system_selected: appmp.system_selected,
         save_options: true
     };
-    localStorage.setItem("void-barrel-main", JSON.stringify(SaveDataMain));
-    // appoのデータを保存
+    // appoの保存データを作成
     let SaveDataOptions = {
         general: appo.general,
         arts: appo.arts,
         damagerolls: appo.damagerolls,
         advanced_order: appo.advanced_order
     };
-    localStorage.setItem("void-barrel-sub", JSON.stringify(SaveDataOptions));
+    // 実際の保存処理
+    try {
+        localStorage.setItem("void-barrel-main", JSON.stringify(SaveDataMain));
+        localStorage.setItem("void-barrel-sub", JSON.stringify(SaveDataOptions));
+    } catch (error) {
+        console.log(console.log("saveOutputOptionsToLocalStorage/saving: Error", error))
+    }
 }
